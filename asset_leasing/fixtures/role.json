@@ -1,0 +1,80 @@
+[
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-09-15 05:01:15.243591",
+  "name": "Leasing Hire Desk",
+  "restrict_to_domain": null,
+  "role_name": "Leasing Hire Desk",
+  "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-09-15 05:01:15.249744",
+  "name": "Leasing Manager",
+  "restrict_to_domain": null,
+  "role_name": "Leasing Manager",
+  "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-09-15 05:01:15.260259",
+  "name": "Leasing Finance",
+  "restrict_to_domain": null,
+  "role_name": "Leasing Finance",
+  "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-09-15 05:01:15.751406",
+  "name": "Leasing Yard Supervisor",
+  "restrict_to_domain": null,
+  "role_name": "Leasing Yard Supervisor",
+  "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-09-15 05:01:15.768198",
+  "name": "Leasing Maintenance Technician",
+  "restrict_to_domain": null,
+  "role_name": "Leasing Maintenance Technician",
+  "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-09-15 05:01:15.769808",
+  "name": "Leasing Management",
+  "restrict_to_domain": null,
+  "role_name": "Leasing Management",
+  "two_factor_auth": 0
+ }
+]
