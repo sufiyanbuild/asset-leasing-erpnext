@@ -8,6 +8,7 @@ on a client production site.
 import frappe
 
 from asset_leasing.setup.price_list import MONTHLY_PRICE_LIST, create_price_list
+from asset_leasing.setup.permissions import setup_permissions
 from asset_leasing.setup.roles import create_roles
 
 
@@ -15,6 +16,7 @@ def after_install():
 	roles = create_roles()
 	price_list = create_price_list()
 	seed_settings()
+	setup_permissions()
 	frappe.db.commit()
 
 	print(f"Asset Leasing installed. Roles created: {len(roles)}. "
@@ -34,3 +36,16 @@ def seed_settings():
 	settings.pricing_policy_confirmed = 0
 	settings.flags.ignore_permissions = True
 	settings.save(ignore_permissions=True)
+
+
+def after_migrate():
+	"""Re-apply the configuration layer idempotently on every migrate.
+
+	Permissions are re-applied here rather than shipped as a Custom DocPerm
+	fixture: add_permission() copies the standard DocPerm rows in before adding
+	ours, which a fixture import would not do.
+	"""
+	from asset_leasing.setup.custom_fields import create_al_custom_fields
+
+	create_al_custom_fields()
+	setup_permissions()
