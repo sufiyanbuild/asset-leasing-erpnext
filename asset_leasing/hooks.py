@@ -27,6 +27,10 @@ after_migrate = "asset_leasing.setup.install.after_migrate"
 fixtures = [
 	{"dt": "Role", "filters": [["role_name", "like", "Leasing %"]]},
 	{"dt": "Custom Field", "filters": [["fieldname", "like", "al_%"]]},
+	{"dt": "Workflow", "filters": [["name", "=", "Rental Agreement Approval"]]},
+	{"dt": "Workflow State", "filters": [["name", "in", ["Draft", "Pending", "Approved", "Rejected"]]]},
+	{"dt": "Workflow Action Master", "filters": [["name", "in", [
+		"Submit for Approval", "Approve", "Reject", "Revise"]]]},
 ]
 
 # P1 business rules. Every handler on a shared DocType exits immediately when

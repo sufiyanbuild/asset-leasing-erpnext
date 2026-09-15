@@ -4,12 +4,15 @@ Every field is prefixed al_ so ownership is unambiguous on a site that may host
 more than one app. All insert_after anchors were verified against the live
 schema on leasing.local before this was written.
 
-Deliberately NOT here - these are Link fields whose target DocType does not
-exist yet, so creating them now would fail the migration:
+Split into two dicts by phase, because a Link field cannot be created before
+its target DocType exists - Frappe validates options at install time.
 
-    Asset.al_current_agreement        -> Rental Agreement   (P2)
-    Sales Invoice.al_rental_agreement -> Rental Agreement   (P2)
-    Subscription.al_rental_agreement  -> Rental Agreement   (P6)
+    P1_CUSTOM_FIELDS - targets that already existed (Item, Location, Customer...)
+    P2_CUSTOM_FIELDS - targets Rental Agreement, created in P2
+
+Still deferred:
+
+    Subscription.al_rental_agreement  -> Rental Agreement   (P6, with Subscription work)
     Asset Repair.al_rental_return     -> Rental Return      (P4)
 
 Also deliberately absent, because standard ERPNext already provides them:
@@ -29,7 +32,7 @@ RENTAL_STATUSES = [
 
 IS_RENTABLE = "eval:doc.al_is_rentable"
 
-CUSTOM_FIELDS = {
+P1_CUSTOM_FIELDS = {
 	# ---------------------------------------------- P1-01, 02, 04, 05, 06, 07
 	"Asset": [
 		{"fieldname": "al_rental_tab", "label": "Rental", "fieldtype": "Tab Break",
@@ -166,8 +169,42 @@ CUSTOM_FIELDS = {
 }
 
 
+# ---------------------------------------------------------------- P2 fields
+# These link to Rental Agreement, so they can only exist once P2 has created it.
+P2_CUSTOM_FIELDS = {
+	"Asset": [
+		{"fieldname": "al_current_agreement", "label": "Current Agreement", "fieldtype": "Link",
+		 "options": "Rental Agreement", "read_only": 1, "insert_after": "al_current_customer",
+		 "depends_on": IS_RENTABLE,
+		 "description": "The agreement currently holding this machine. Set on approval, cleared on return."},
+	],
+	"Sales Invoice": [
+		{"fieldname": "al_rental_agreement", "label": "Rental Agreement", "fieldtype": "Link",
+		 "options": "Rental Agreement", "insert_after": "al_invoice_purpose",
+		 "in_standard_filter": 1},
+	],
+}
+
+# Everything the app owns, in dependency order.
+CUSTOM_FIELDS = {**P1_CUSTOM_FIELDS}
+for _dt, _fields in P2_CUSTOM_FIELDS.items():
+	CUSTOM_FIELDS.setdefault(_dt, [])
+	CUSTOM_FIELDS[_dt] = CUSTOM_FIELDS[_dt] + _fields
+
+
 def create_al_custom_fields():
-	"""Idempotent. Safe to run on every migrate."""
-	create_custom_fields(CUSTOM_FIELDS, update=True)
+	"""Idempotent. Safe to run on every migrate.
+
+	P2 fields are skipped while Rental Agreement does not exist, so this stays
+	safe to call during a partial install.
+	"""
+	payload = {dt: list(fields) for dt, fields in P1_CUSTOM_FIELDS.items()}
+
+	if frappe.db.exists("DocType", "Rental Agreement"):
+		for dt, fields in P2_CUSTOM_FIELDS.items():
+			payload.setdefault(dt, [])
+			payload[dt] = payload[dt] + fields
+
+	create_custom_fields(payload, update=True)
 	frappe.db.commit()
-	return sum(len(v) for v in CUSTOM_FIELDS.values())
+	return sum(len(v) for v in payload.values())

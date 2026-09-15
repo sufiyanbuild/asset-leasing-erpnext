@@ -1,0 +1,55 @@
+{
+ "actions": [],
+ "creation": "2026-09-15 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "istable": 1,
+ "field_order": [
+  "asset", "asset_name", "rental_item", "item_name",
+  "cb_rates", "monthly_rate", "expected_days",
+  "sb_progress", "line_status", "dispatch_datetime",
+  "cb_progress", "return_datetime", "billable_days", "line_amount"
+ ],
+ "fields": [
+  {"fieldname": "asset", "fieldtype": "Link", "options": "Asset", "label": "Equipment",
+   "reqd": 1, "in_list_view": 1, "columns": 2},
+  {"fieldname": "asset_name", "fieldtype": "Data", "label": "Equipment Name",
+   "fetch_from": "asset.asset_name", "read_only": 1, "in_list_view": 1, "columns": 2},
+  {"fieldname": "rental_item", "fieldtype": "Link", "options": "Item", "label": "Rental Charge Item",
+   "fetch_from": "asset.al_rental_item", "fetch_if_empty": 1, "reqd": 1,
+   "description": "Non-stock service item used to bill rent. Never a fixed-asset item."},
+  {"fieldname": "item_name", "fieldtype": "Data", "label": "Charge Item Name",
+   "fetch_from": "rental_item.item_name", "read_only": 1},
+
+  {"fieldname": "cb_rates", "fieldtype": "Column Break"},
+  {"fieldname": "monthly_rate", "fieldtype": "Currency", "label": "Monthly Rate",
+   "in_list_view": 1, "columns": 2,
+   "description": "The single agreed commercial rate (Q-01). Sub-month hires derive from this once Q-14 to Q-18 are answered."},
+  {"fieldname": "expected_days", "fieldtype": "Int", "label": "Expected Days", "read_only": 1,
+   "description": "Calendar days between the agreement start and expected end. Not a billing figure."},
+
+  {"fieldname": "sb_progress", "fieldtype": "Section Break", "label": "Progress"},
+  {"fieldname": "line_status", "fieldtype": "Select",
+   "options": "Pending Dispatch\nOn Hire\nReturned\nCancelled",
+   "default": "Pending Dispatch", "label": "Line Status", "read_only": 1,
+   "in_list_view": 1, "columns": 1},
+  {"fieldname": "dispatch_datetime", "fieldtype": "Datetime", "label": "Dispatched On", "read_only": 1},
+
+  {"fieldname": "cb_progress", "fieldtype": "Column Break"},
+  {"fieldname": "return_datetime", "fieldtype": "Datetime", "label": "Returned On", "read_only": 1},
+  {"fieldname": "billable_days", "fieldtype": "Float", "precision": "2", "label": "Billable Days",
+   "read_only": 1, "description": "Computed at return, once the pro-rata policy is confirmed."},
+  {"fieldname": "line_amount", "fieldtype": "Currency", "label": "Line Amount", "read_only": 1,
+   "description": "Blank until the pro-rata policy (Q-14 to Q-18) is confirmed."}
+ ],
+ "links": [],
+ "modified": "2026-09-15 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Asset Leasing",
+ "name": "Rental Agreement Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

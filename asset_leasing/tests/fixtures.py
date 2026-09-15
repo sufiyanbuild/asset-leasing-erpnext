@@ -115,3 +115,147 @@ def make_customer(name, blocked=False):
 		"al_hire_block_reason": "Test block" if blocked else None,
 	}).insert(ignore_permissions=True)
 	return name
+
+
+# ---------------------------------------------------------------- P2 fixtures
+def ensure_company():
+	"""A minimal company with a chart of accounts.
+
+	Rental Agreements need one. Creating a Company is slow but unavoidable for
+	genuine integration coverage, and the test runner rolls it back.
+	"""
+	name = f"{PREFIX} Co"
+	if frappe.db.exists("Company", name):
+		return name
+	frappe.get_doc({
+		"doctype": "Company",
+		"company_name": name,
+		"abbr": "ALTC",
+		"default_currency": "INR",
+		"country": "India",
+	}).insert(ignore_permissions=True)
+	return name
+
+
+def ensure_asset_category_with_accounts(company):
+	"""Asset Category needs accounts tied to a company before an Asset can submit."""
+	name = f"{PREFIX} Plant"
+	if frappe.db.exists("Asset Category", name):
+		return name
+
+	def acc(account_type=None, root=None, like=None):
+		filters = {"company": company, "is_group": 0}
+		if account_type:
+			filters["account_type"] = account_type
+		if root:
+			filters["root_type"] = root
+		found = frappe.db.get_value("Account", filters, "name")
+		if found:
+			return found
+		if like:
+			return frappe.db.get_value(
+				"Account", {"company": company, "is_group": 0, "account_name": ["like", like]}, "name"
+			)
+		return None
+
+	fixed = acc(account_type="Fixed Asset") or acc(root="Asset")
+	depr_accum = acc(account_type="Accumulated Depreciation") or fixed
+	depr_exp = acc(account_type="Depreciation") or acc(root="Expense")
+
+	frappe.get_doc({
+		"doctype": "Asset Category",
+		"asset_category_name": name,
+		"accounts": [{
+			"company_name": company,
+			"fixed_asset_account": fixed,
+			"accumulated_depreciation_account": depr_accum,
+			"depreciation_expense_account": depr_exp,
+		}],
+	}).insert(ignore_permissions=True)
+	return name
+
+
+def make_rentable_asset(asset_name, company=None, rental_item=None, yard=None, rate=45000):
+	"""A submitted, rentable Asset - the thing a hire agreement commits."""
+	if frappe.db.exists("Asset", {"asset_name": asset_name}):
+		return frappe.db.get_value("Asset", {"asset_name": asset_name}, "name")
+
+	company = company or ensure_company()
+	category = ensure_asset_category_with_accounts(company)
+	yard = yard or make_location(f"{PREFIX} Yard", "Owned Yard")
+
+	capital_item = f"{PREFIX} Machine {asset_name}"
+	if not frappe.db.exists("Item", capital_item):
+		frappe.get_doc({
+			"doctype": "Item", "item_code": capital_item, "item_name": capital_item,
+			"item_group": ensure_item_group(), "stock_uom": ensure_uom(),
+			"is_stock_item": 0, "is_fixed_asset": 1, "asset_category": category,
+		}).insert(ignore_permissions=True)
+
+	rental_item = rental_item or make_rental_charge_item(f"{PREFIX} Hire {asset_name}", rate)
+
+	asset = frappe.get_doc({
+		"doctype": "Asset",
+		"asset_name": asset_name,
+		"item_code": capital_item,
+		"asset_category": category,
+		"company": company,
+		"location": yard,
+		"asset_type": "Existing Asset",
+		"purchase_date": "2026-01-01",
+		"available_for_use_date": "2026-01-01",
+		"purchase_amount": 3500000,
+		"net_purchase_amount": 3500000,
+		"total_asset_cost": 3500000,
+		"asset_quantity": 1,
+		"calculate_depreciation": 0,
+		"al_is_rentable": 1,
+		"al_rental_item": rental_item,
+		"al_base_location": yard,
+	})
+	asset.flags.ignore_mandatory = True
+	asset.insert(ignore_permissions=True)
+	asset.submit()
+	return asset.name
+
+
+def make_rental_charge_item(code, rate=45000):
+	"""A non-stock service item with a price on the monthly rental price list."""
+	make_item(code, is_fixed_asset=0, is_rental_item=1)
+	price_list = frappe.db.get_value("Asset Leasing Settings", None, "monthly_price_list") \
+		or "Rental - Monthly"
+	if frappe.db.exists("Price List", price_list) and not frappe.db.exists(
+		"Item Price", {"item_code": code, "price_list": price_list}
+	):
+		frappe.get_doc({
+			"doctype": "Item Price", "item_code": code, "price_list": price_list,
+			"selling": 1, "price_list_rate": rate,
+		}).insert(ignore_permissions=True)
+	return code
+
+
+def make_agreement(customer, asset, start_date, end_date=None, open_ended=False,
+				   company=None, site=None, submit=False, **kwargs):
+	"""Build a Rental Agreement. submit=True pushes it through the workflow."""
+	company = company or ensure_company()
+	site = site or make_location(f"{PREFIX} Site", "Customer Site")
+
+	doc = frappe.get_doc({
+		"doctype": "Rental Agreement",
+		"customer": customer,
+		"company": company,
+		"agreement_type": "Short Term Hire",
+		"hire_type": "Dry Hire",
+		"start_date": start_date,
+		"is_open_ended": 1 if open_ended else 0,
+		"expected_end_date": None if open_ended else end_date,
+		"site_location": site,
+		"items": [{"asset": asset}],
+		**kwargs,
+	})
+	doc.flags.ignore_permissions = True
+	doc.insert(ignore_permissions=True)
+	if submit:
+		doc.submit()
+		doc.reload()
+	return doc

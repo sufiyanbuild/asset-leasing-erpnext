@@ -10,6 +10,7 @@ import frappe
 from asset_leasing.setup.price_list import MONTHLY_PRICE_LIST, create_price_list
 from asset_leasing.setup.permissions import setup_permissions
 from asset_leasing.setup.roles import create_roles
+from asset_leasing.setup.workflows import create_workflow
 
 
 def after_install():
@@ -17,6 +18,7 @@ def after_install():
 	price_list = create_price_list()
 	seed_settings()
 	setup_permissions()
+	create_workflow()
 	frappe.db.commit()
 
 	print(f"Asset Leasing installed. Roles created: {len(roles)}. "
@@ -49,3 +51,4 @@ def after_migrate():
 
 	create_al_custom_fields()
 	setup_permissions()
+	create_workflow()

@@ -3,7 +3,7 @@
 import frappe
 from frappe.tests import IntegrationTestCase
 
-from asset_leasing.setup.custom_fields import CUSTOM_FIELDS
+from asset_leasing.setup.custom_fields import CUSTOM_FIELDS, P1_CUSTOM_FIELDS, P2_CUSTOM_FIELDS
 
 
 class TestALFields(IntegrationTestCase):
@@ -28,12 +28,16 @@ class TestALFields(IntegrationTestCase):
 				if spec.get("permlevel") and field.permlevel != spec["permlevel"]:
 					problems.append(f"{doctype}.{fieldname} permlevel {field.permlevel}")
 		self.assertEqual(problems, [], f"{len(problems)} of {total} fields wrong")
-		self.assertEqual(total, 38, "expected 38 custom fields")
+		expected = sum(len(v) for v in P1_CUSTOM_FIELDS.values())
+		if frappe.db.exists("DocType", "Rental Agreement"):
+			expected += sum(len(v) for v in P2_CUSTOM_FIELDS.values())
+		self.assertEqual(total, expected)
 
 	def test_fields_are_app_owned_not_orphaned(self):
 		"""Every al_ field must be a real Custom Field record, exportable as a fixture."""
 		count = frappe.db.count("Custom Field", {"fieldname": ["like", "al_%"]})
-		self.assertEqual(count, 38)
+		expected = sum(len(v) for v in CUSTOM_FIELDS.values())
+		self.assertEqual(count, expected)
 
 	def test_patch_is_idempotent(self):
 		"""Re-running the field patch must change nothing."""
@@ -44,12 +48,16 @@ class TestALFields(IntegrationTestCase):
 		after = frappe.db.count("Custom Field", {"fieldname": ["like", "al_%"]})
 		self.assertEqual(before, after)
 
-	def test_deferred_link_fields_absent(self):
-		"""Fields pointing at DocTypes that do not exist yet must not be here."""
+	def test_p2_link_fields_present(self):
+		"""Rental Agreement exists as of P2, so these links can and must exist."""
+		self.assertTrue(frappe.get_meta("Asset").has_field("al_current_agreement"))
+		self.assertTrue(frappe.get_meta("Sales Invoice").has_field("al_rental_agreement"))
+
+	def test_still_deferred_link_fields_absent(self):
+		"""Their target DocTypes arrive in P4 and P6; creating them now would fail."""
 		for doctype, fieldname in [
-			("Asset", "al_current_agreement"),
-			("Sales Invoice", "al_rental_agreement"),
 			("Asset Repair", "al_rental_return"),
+			("Subscription", "al_rental_agreement"),
 		]:
 			self.assertFalse(
 				frappe.get_meta(doctype).has_field(fieldname),
