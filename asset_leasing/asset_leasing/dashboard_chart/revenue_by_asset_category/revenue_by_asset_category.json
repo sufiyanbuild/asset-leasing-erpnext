@@ -1,0 +1,23 @@
+{
+ "docstatus": 0,
+ "idx": 0,
+ "creation": "2026-09-17 13:30:00.000000",
+ "modified": "2026-09-17 13:30:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "module": "Asset Leasing",
+ "doctype": "Dashboard Chart",
+ "name": "Revenue by Asset Category",
+ "chart_name": "Revenue by Asset Category",
+ "is_public": 1,
+ "is_standard": 1,
+ "number_of_groups": 0,
+ "use_report_chart": 0,
+ "y_axis": [],
+ "chart_type": "Custom",
+ "source": "Rental Revenue by Category",
+ "type": "Bar",
+ "timeseries": 0,
+ "filters_json": "{}",
+ "dynamic_filters_json": "{\"company\": \"frappe.defaults.get_user_default(\\\"Company\\\")\"}"
+}

@@ -1,0 +1,1 @@
+<p>Rental Agreement <a href="{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}">{{ doc.name }}</a> for <b>{{ doc.customer_name }}</b> ends in 7 days, on {{ frappe.format(doc.expected_end_date, 'Date') }}. Arrange the return, or agree an extension or renewal.</p>

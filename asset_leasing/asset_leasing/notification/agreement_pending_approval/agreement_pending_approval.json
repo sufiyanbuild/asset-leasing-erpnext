@@ -1,0 +1,36 @@
+{
+ "attach_print": 0,
+ "channel": "System Notification",
+ "condition_type": "Python",
+ "creation": "2026-09-17 14:00:00.000000",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "enabled": 1,
+ "idx": 0,
+ "is_standard": 1,
+ "message": "<p>Rental Agreement <a href=\"{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}\">{{ doc.name }}</a> for <b>{{ doc.customer_name }}</b> has been submitted for approval.</p><p>Period: {{ frappe.format(doc.start_date, 'Date') }} to {{ frappe.format(doc.expected_end_date, 'Date') if doc.expected_end_date else 'open-ended' }}<br>Equipment: {{ doc.items | map(attribute='asset') | join(', ') }}</p>\n",
+ "message_type": "HTML",
+ "method": "",
+ "minutes_offset": 0,
+ "modified": "2026-09-17 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Asset Leasing",
+ "name": "Agreement Pending Approval",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "receiver_by_role": "Leasing Manager"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "sender_email": "",
+ "value_changed": "workflow_state",
+ "date_changed": null,
+ "document_type": "Rental Agreement",
+ "event": "Value Change",
+ "condition": "doc.workflow_state == \"Pending\"",
+ "subject": "Rental Agreement {{ doc.name }} for {{ doc.customer_name }} is waiting for approval",
+ "notification_message": "<p>Rental Agreement <a href=\"{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}\">{{ doc.name }}</a> for <b>{{ doc.customer_name }}</b> has been submitted for approval.</p><p>Period: {{ frappe.format(doc.start_date, 'Date') }} to {{ frappe.format(doc.expected_end_date, 'Date') if doc.expected_end_date else 'open-ended' }}<br>Equipment: {{ doc.items | map(attribute='asset') | join(', ') }}</p>"
+}

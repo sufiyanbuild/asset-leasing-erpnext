@@ -3,7 +3,7 @@
 import frappe
 from frappe.tests import IntegrationTestCase
 
-from asset_leasing.setup.custom_fields import CUSTOM_FIELDS, P1_CUSTOM_FIELDS, P2_CUSTOM_FIELDS
+from asset_leasing.setup.custom_fields import CUSTOM_FIELDS
 
 
 class TestALFields(IntegrationTestCase):
@@ -28,10 +28,7 @@ class TestALFields(IntegrationTestCase):
 				if spec.get("permlevel") and field.permlevel != spec["permlevel"]:
 					problems.append(f"{doctype}.{fieldname} permlevel {field.permlevel}")
 		self.assertEqual(problems, [], f"{len(problems)} of {total} fields wrong")
-		expected = sum(len(v) for v in P1_CUSTOM_FIELDS.values())
-		if frappe.db.exists("DocType", "Rental Agreement"):
-			expected += sum(len(v) for v in P2_CUSTOM_FIELDS.values())
-		self.assertEqual(total, expected)
+		self.assertEqual(total, 47)
 
 	def test_fields_are_app_owned_not_orphaned(self):
 		"""Every al_ field must be a real Custom Field record, exportable as a fixture."""
@@ -48,18 +45,26 @@ class TestALFields(IntegrationTestCase):
 		after = frappe.db.count("Custom Field", {"fieldname": ["like", "al_%"]})
 		self.assertEqual(before, after)
 
-	def test_p2_link_fields_present(self):
-		"""Rental Agreement exists as of P2, so these links can and must exist."""
-		self.assertTrue(frappe.get_meta("Asset").has_field("al_current_agreement"))
-		self.assertTrue(frappe.get_meta("Sales Invoice").has_field("al_rental_agreement"))
-
-	def test_still_deferred_link_fields_absent(self):
-		"""Their target DocTypes arrive in P4 and P6; creating them now would fail."""
+	def test_rental_document_links_present(self):
+		"""Every link to an app DocType exists now that all its targets do."""
 		for doctype, fieldname in [
+			("Asset", "al_current_agreement"),
+			("Sales Invoice", "al_rental_agreement"),
+			("Sales Invoice", "al_rental_dispatch"),
+			("Sales Invoice", "al_rental_return"),
 			("Asset Repair", "al_rental_return"),
 			("Subscription", "al_rental_agreement"),
+			("Payment Entry", "al_rental_agreement"),
+			("Payment Entry", "al_deposit_type"),
+			("Asset", "al_compliance_status"),
 		]:
-			self.assertFalse(
-				frappe.get_meta(doctype).has_field(fieldname),
-				f"{doctype}.{fieldname} should be deferred until its target DocType exists",
-			)
+			self.assertTrue(frappe.get_meta(doctype).has_field(fieldname), f"{doctype}.{fieldname}")
+
+	def test_every_field_ships_in_the_fixture(self):
+		import json
+		import os
+
+		path = os.path.join(frappe.get_app_path("asset_leasing"), "fixtures", "custom_field.json")
+		shipped = {(d["dt"], d["fieldname"]) for d in json.load(open(path))}
+		defined = {(dt, f["fieldname"]) for dt, fields in CUSTOM_FIELDS.items() for f in fields}
+		self.assertEqual(defined - shipped, set())

@@ -1,0 +1,450 @@
+{
+ "actions": [],
+ "creation": "2026-09-17 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "rental_agreement",
+  "rental_dispatch",
+  "customer",
+  "customer_name",
+  "company",
+  "currency",
+  "cb_head",
+  "return_datetime",
+  "is_final_return",
+  "status",
+  "sb_route",
+  "from_location",
+  "cb_route",
+  "to_location",
+  "sb_items",
+  "items",
+  "sb_inspection",
+  "inspection_result",
+  "inspected_by",
+  "cb_inspection",
+  "inspection_remarks",
+  "sb_damage",
+  "damages",
+  "total_damage_estimate",
+  "cb_damage",
+  "total_chargeable_damage",
+  "sb_billing",
+  "rental_billing_status",
+  "total_elapsed_days",
+  "total_downtime_days",
+  "adjustment_days",
+  "adjustment_reason",
+  "waive_overdue_surcharge",
+  "cb_billing",
+  "total_billable_days",
+  "computed_rental_amount",
+  "sb_more",
+  "asset_movement",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "options": "RR-.YYYY.-.####",
+   "label": "Series",
+   "default": "RR-.YYYY.-.####",
+   "reqd": 1,
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "rental_agreement",
+   "fieldtype": "Link",
+   "options": "Rental Agreement",
+   "label": "Rental Agreement",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "rental_dispatch",
+   "fieldtype": "Link",
+   "options": "Rental Dispatch",
+   "label": "Rental Dispatch",
+   "description": "Optional. Pulls the machines released on that dispatch."
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "options": "Customer",
+   "label": "Customer",
+   "fetch_from": "rental_agreement.customer",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "fetch_from": "rental_agreement.customer_name",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Company",
+   "fetch_from": "rental_agreement.company",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "options": "Currency",
+   "label": "Currency",
+   "fetch_from": "rental_agreement.currency",
+   "read_only": 1,
+   "hidden": 1
+  },
+  {
+   "fieldname": "cb_head",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "return_datetime",
+   "fieldtype": "Datetime",
+   "label": "Returned On",
+   "default": "Now",
+   "reqd": 1,
+   "in_list_view": 1,
+   "description": "Stops the billing clock. Must be after each machine's dispatch."
+  },
+  {
+   "fieldname": "is_final_return",
+   "fieldtype": "Check",
+   "label": "Final Return",
+   "read_only": 1,
+   "no_copy": 1,
+   "description": "Set automatically when this return brings back the last machine on hire."
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "options": "Draft\nInspected\nCancelled",
+   "label": "Status",
+   "default": "Draft",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "sb_route",
+   "fieldtype": "Section Break",
+   "label": "Route"
+  },
+  {
+   "fieldname": "from_location",
+   "fieldtype": "Link",
+   "options": "Location",
+   "label": "From Site",
+   "fetch_from": "rental_agreement.site_location",
+   "fetch_if_empty": 1
+  },
+  {
+   "fieldname": "cb_route",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "to_location",
+   "fieldtype": "Link",
+   "options": "Location",
+   "label": "Receiving Yard",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sb_items",
+   "fieldtype": "Section Break",
+   "label": "Equipment"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "options": "Rental Return Item",
+   "label": "Equipment",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sb_inspection",
+   "fieldtype": "Section Break",
+   "label": "Inspection"
+  },
+  {
+   "fieldname": "inspection_result",
+   "fieldtype": "Select",
+   "options": "Pending\nPassed\nDamage Found",
+   "label": "Inspection Result",
+   "default": "Pending",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "inspected_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Inspected By",
+   "description": "Required before the inspection can be completed."
+  },
+  {
+   "fieldname": "cb_inspection",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "inspection_remarks",
+   "fieldtype": "Small Text",
+   "label": "Inspection Remarks"
+  },
+  {
+   "fieldname": "sb_damage",
+   "fieldtype": "Section Break",
+   "label": "Damage",
+   "depends_on": "eval:doc.inspection_result=='Damage Found'"
+  },
+  {
+   "fieldname": "damages",
+   "fieldtype": "Table",
+   "options": "Rental Damage Item",
+   "label": "Damage Findings",
+   "mandatory_depends_on": "eval:doc.inspection_result=='Damage Found'"
+  },
+  {
+   "fieldname": "total_damage_estimate",
+   "fieldtype": "Currency",
+   "options": "currency",
+   "label": "Total Damage Estimate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_damage",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_chargeable_damage",
+   "fieldtype": "Currency",
+   "options": "currency",
+   "label": "Chargeable Damage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sb_billing",
+   "fieldtype": "Section Break",
+   "label": "Billing"
+  },
+  {
+   "fieldname": "rental_billing_status",
+   "fieldtype": "Select",
+   "options": "\nAwaiting Pricing Policy\nBilled by Subscription\nInvoiced",
+   "label": "Rental Billing",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "total_elapsed_days",
+   "fieldtype": "Float",
+   "label": "Total Elapsed Days",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_downtime_days",
+   "fieldtype": "Float",
+   "label": "Total Approved Downtime Days",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "adjustment_days",
+   "fieldtype": "Float",
+   "label": "Adjustment Days (per machine)",
+   "precision": "2",
+   "description": "A manual credit, in days, applied to each machine on this return. Requires a reason."
+  },
+  {
+   "fieldname": "adjustment_reason",
+   "fieldtype": "Small Text",
+   "label": "Adjustment Reason",
+   "mandatory_depends_on": "eval:doc.adjustment_days || doc.waive_overdue_surcharge"
+  },
+  {
+   "fieldname": "waive_overdue_surcharge",
+   "fieldtype": "Check",
+   "label": "Waive Overdue Surcharge",
+   "permlevel": 1,
+   "description": "Leasing Manager only. Requires an adjustment reason."
+  },
+  {
+   "fieldname": "cb_billing",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_billable_days",
+   "fieldtype": "Float",
+   "label": "Total Billable Days",
+   "precision": "2",
+   "read_only": 1,
+   "description": "Sum of the machines' billable days under the confirmed pro-rata policy."
+  },
+  {
+   "fieldname": "computed_rental_amount",
+   "fieldtype": "Currency",
+   "options": "currency",
+   "label": "Computed Rental Amount",
+   "read_only": 1,
+   "description": "Rent for the returned machines under the confirmed pro-rata policy. Short Term Hire only."
+  },
+  {
+   "fieldname": "sb_more",
+   "fieldtype": "Section Break",
+   "label": "More Information",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "asset_movement",
+   "fieldtype": "Link",
+   "options": "Asset Movement",
+   "label": "Asset Movement",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Rental Return",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-09-17 12:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Asset Leasing",
+ "name": "Rental Return",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "create": 1,
+   "read": 1,
+   "write": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1,
+   "delete": 1,
+   "share": 1,
+   "export": 1
+  },
+  {
+   "role": "Leasing Yard Supervisor",
+   "create": 1,
+   "read": 1,
+   "write": 1,
+   "print": 1,
+   "report": 1
+  },
+  {
+   "role": "Leasing Maintenance Technician",
+   "read": 1,
+   "write": 1,
+   "submit": 1,
+   "print": 1,
+   "report": 1
+  },
+  {
+   "role": "Leasing Manager",
+   "create": 1,
+   "read": 1,
+   "write": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1
+  },
+  {
+   "role": "Leasing Hire Desk",
+   "read": 1,
+   "print": 1,
+   "report": 1
+  },
+  {
+   "role": "Leasing Finance",
+   "read": 1,
+   "print": 1,
+   "report": 1
+  },
+  {
+   "role": "Leasing Management",
+   "read": 1,
+   "print": 1,
+   "report": 1
+  },
+  {
+   "role": "Leasing Manager",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "System Manager",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "Leasing Finance",
+   "permlevel": 1,
+   "read": 1
+  },
+  {
+   "role": "Leasing Yard Supervisor",
+   "permlevel": 1,
+   "read": 1
+  },
+  {
+   "role": "Leasing Maintenance Technician",
+   "permlevel": 1,
+   "read": 1
+  },
+  {
+   "role": "Leasing Hire Desk",
+   "permlevel": 1,
+   "read": 1
+  },
+  {
+   "role": "Leasing Management",
+   "permlevel": 1,
+   "read": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "naming_series:",
+ "is_submittable": 1,
+ "track_changes": 1,
+ "title_field": "customer_name",
+ "search_fields": "rental_agreement,customer_name",
+ "default_print_format": "Off-Hire Note"
+}

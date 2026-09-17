@@ -127,6 +127,11 @@ def ensure_company():
 	name = f"{PREFIX} Co"
 	if frappe.db.exists("Company", name):
 		return name
+	ensure_fiscal_year()
+	# Company.on_update creates a transit warehouse; the setup wizard normally
+	# supplies its Warehouse Type.
+	if not frappe.db.exists("Warehouse Type", "Transit"):
+		frappe.get_doc({"doctype": "Warehouse Type", "name": "Transit"}).insert(ignore_permissions=True)
 	frappe.get_doc({
 		"doctype": "Company",
 		"company_name": name,
@@ -135,6 +140,27 @@ def ensure_company():
 		"country": "India",
 	}).insert(ignore_permissions=True)
 	return name
+
+
+def ensure_fiscal_year():
+	"""Invoices need a fiscal year covering the posting date; a bare site has none."""
+	from frappe.utils import getdate, nowdate
+
+	today = getdate(nowdate())
+	covered = frappe.db.sql(
+		"select name from `tabFiscal Year` where %s between year_start_date and year_end_date and disabled = 0",
+		today,
+	)
+	if covered:
+		return covered[0][0]
+	start = today.replace(month=4, day=1) if today.month >= 4 else today.replace(year=today.year - 1, month=4, day=1)
+	end = start.replace(year=start.year + 1, month=3, day=31)
+	fy = frappe.get_doc({
+		"doctype": "Fiscal Year", "year": f"{PREFIX} FY {start.year}",
+		"year_start_date": start, "year_end_date": end,
+	})
+	fy.insert(ignore_permissions=True)
+	return fy.name
 
 
 def ensure_asset_category_with_accounts(company):
@@ -258,4 +284,124 @@ def make_agreement(customer, asset, start_date, end_date=None, open_ended=False,
 	if submit:
 		doc.submit()
 		doc.reload()
+	return doc
+
+
+# ------------------------------------------------------------- P3+ fixtures
+from frappe.utils import add_days, add_to_date, now_datetime, nowdate  # noqa: E402
+
+CONFIRMED = {
+	"pricing_policy_confirmed": 1,
+	"proration_divisor_policy": "Actual Days in Month",
+	"has_minimum_rental_period": "No",
+	"minimum_billable_days": 0,
+	"part_day_policy": "Round Up",
+	"month_boundary_policy": "Single Divisor For Whole Hire",
+	"cap_at_monthly_rate": "No",
+}
+
+
+def company_abbr(company=None):
+	return frappe.db.get_value("Company", company or ensure_company(), "abbr")
+
+
+def make_site(name=f"{PREFIX} Site"):
+	return make_location(name, "Customer Site")
+
+
+def make_yard(name=f"{PREFIX} Yard"):
+	return make_location(name, "Owned Yard")
+
+
+def ensure_deposit_account(company=None):
+	"""A plain Liability ledger (no account type) for security deposits."""
+	company = company or ensure_company()
+	name = f"{PREFIX} Deposits - {company_abbr(company)}"
+	if frappe.db.exists("Account", name):
+		return name
+	parent = frappe.db.get_value(
+		"Account", {"company": company, "root_type": "Liability", "is_group": 1}, "name", order_by="lft desc"
+	)
+	frappe.get_doc({
+		"doctype": "Account", "account_name": f"{PREFIX} Deposits", "company": company,
+		"parent_account": parent, "root_type": "Liability", "is_group": 0, "account_type": "",
+	}).insert(ignore_permissions=True)
+	return name
+
+
+def ensure_service_item(code):
+	return make_item(code, is_fixed_asset=0, is_rental_item=0)
+
+
+def billing_settings(company=None):
+	"""Settings values that let every invoice path run in a test."""
+	return {
+		**CONFIRMED,
+		"damage_charge_item": ensure_service_item(f"{PREFIX} Damage Recovery"),
+		"transport_charge_item": ensure_service_item(f"{PREFIX} Transport"),
+		"deposit_liability_account": ensure_deposit_account(company),
+		"default_yard_location": make_yard(),
+	}
+
+
+def make_user(email, roles):
+	if not frappe.db.exists("User", email):
+		user = frappe.get_doc({
+			"doctype": "User", "email": email, "first_name": email.split("@")[0],
+			"send_welcome_email": 0, "user_type": "System User",
+		})
+		user.insert(ignore_permissions=True)
+	user = frappe.get_doc("User", email)
+	user.add_roles(*roles)
+	return email
+
+
+def approved_agreement(customer, asset, days_ago=10, length=30, **kwargs):
+	"""A submitted agreement that started days_ago and runs for length days."""
+	start = add_days(nowdate(), -days_ago)
+	end = None if kwargs.get("open_ended") else add_days(start, length - 1)
+	return make_agreement(customer, asset, start, end, submit=True, **kwargs)
+
+
+def dispatch(agreement, hours_ago=48, submit=True, **kwargs):
+	agreement.reload()
+	doc = frappe.get_doc({
+		"doctype": "Rental Dispatch",
+		"rental_agreement": agreement.name,
+		"dispatch_datetime": add_to_date(now_datetime(), hours=-hours_ago),
+		"from_location": kwargs.pop("from_location", make_yard()),
+		"transport_mode": kwargs.pop("transport_mode", "Customer Collected"),
+		"items": kwargs.pop("items", None) or [
+			{"asset": row.asset, "agreement_item": row.name, "condition_out": "Good", "meter_reading_out": 100}
+			for row in agreement.items if row.line_status == "Pending Dispatch"
+		],
+		**kwargs,
+	})
+	doc.insert(ignore_permissions=True)
+	if submit:
+		doc.submit()
+	return doc
+
+
+def return_doc(agreement, hours_ago=0, submit=True, damages=None, **kwargs):
+	agreement.reload()
+	items = kwargs.pop("items", None) or [
+		{"asset": row.asset, "agreement_item": row.name, "condition_in": "Good",
+		 "post_return_status": "Available", "meter_reading_in": 150}
+		for row in agreement.items if row.line_status == "On Hire"
+	]
+	doc = frappe.get_doc({
+		"doctype": "Rental Return",
+		"rental_agreement": agreement.name,
+		"return_datetime": kwargs.pop("return_datetime", add_to_date(now_datetime(), hours=-hours_ago)),
+		"to_location": kwargs.pop("to_location", make_yard()),
+		"inspection_result": "Damage Found" if damages else "Passed",
+		"inspected_by": "Administrator",
+		"items": items,
+		"damages": damages or [],
+		**kwargs,
+	})
+	doc.insert(ignore_permissions=True)
+	if submit:
+		doc.submit()
 	return doc

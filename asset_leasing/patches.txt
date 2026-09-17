@@ -2,3 +2,6 @@
 
 [post_model_sync]
 asset_leasing.patches.v0_2.add_al_custom_fields
+asset_leasing.patches.v0_3.add_rental_document_fields
+asset_leasing.patches.v0_3.record_confirmed_pricing_policy
+asset_leasing.patches.v0_3.refresh_asset_holds

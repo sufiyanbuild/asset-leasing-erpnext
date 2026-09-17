@@ -2,6 +2,34 @@
  {
   "docstatus": 0,
   "doctype": "Workflow Action Master",
+  "modified": "2026-09-17 03:14:48.728203",
+  "name": "Send for Inspection",
+  "workflow_action_name": "Send for Inspection"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-09-17 03:14:48.729055",
+  "name": "Pass Inspection",
+  "workflow_action_name": "Pass Inspection"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-09-17 03:14:48.729508",
+  "name": "Record Damage",
+  "workflow_action_name": "Record Damage"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2026-09-17 03:14:48.730278",
+  "name": "Approve Charges",
+  "workflow_action_name": "Approve Charges"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
   "modified": "2026-09-15 04:59:58.881552",
   "name": "Approve",
   "workflow_action_name": "Approve"

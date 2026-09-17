@@ -1,0 +1,206 @@
+{
+ "actions": [],
+ "creation": "2026-09-17 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "asset",
+  "asset_name",
+  "agreement_item",
+  "source_location",
+  "dispatch_datetime",
+  "condition_out",
+  "condition_in",
+  "post_return_status",
+  "cb_meter",
+  "meter_reading_out",
+  "meter_reading_in",
+  "meter_hours_used",
+  "fuel_level_out",
+  "fuel_level_in",
+  "photo_in",
+  "sb_duration",
+  "elapsed_days",
+  "downtime_days",
+  "cb_duration",
+  "billable_days",
+  "overdue_days",
+  "rental_amount",
+  "previous_meter_reading"
+ ],
+ "fields": [
+  {
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "options": "Asset",
+   "label": "Equipment",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "label": "Equipment Name",
+   "fetch_from": "asset.asset_name",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "agreement_item",
+   "fieldtype": "Data",
+   "label": "Agreement Line",
+   "read_only": 1,
+   "hidden": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "source_location",
+   "fieldtype": "Link",
+   "options": "Location",
+   "label": "Returned From",
+   "read_only": 1
+  },
+  {
+   "fieldname": "dispatch_datetime",
+   "fieldtype": "Datetime",
+   "label": "Dispatched On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "condition_out",
+   "fieldtype": "Data",
+   "label": "Condition Out",
+   "read_only": 1
+  },
+  {
+   "fieldname": "condition_in",
+   "fieldtype": "Select",
+   "options": "\nExcellent\nGood\nFair\nPoor\nDamaged",
+   "label": "Condition In",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "post_return_status",
+   "fieldtype": "Select",
+   "options": "\nAvailable\nUnder Inspection\nUnder Repair",
+   "label": "Next Status",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2,
+   "description": "The machine's operational status once this return is inspected."
+  },
+  {
+   "fieldname": "cb_meter",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "meter_reading_out",
+   "fieldtype": "Float",
+   "label": "Meter Reading Out",
+   "precision": "1",
+   "read_only": 1
+  },
+  {
+   "fieldname": "meter_reading_in",
+   "fieldtype": "Float",
+   "label": "Meter Reading In",
+   "precision": "1",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "meter_hours_used",
+   "fieldtype": "Float",
+   "label": "Meter Used",
+   "precision": "1",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fuel_level_out",
+   "fieldtype": "Percent",
+   "label": "Fuel Level Out",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fuel_level_in",
+   "fieldtype": "Percent",
+   "label": "Fuel Level In"
+  },
+  {
+   "fieldname": "photo_in",
+   "fieldtype": "Attach Image",
+   "label": "Photo at Return"
+  },
+  {
+   "fieldname": "sb_duration",
+   "fieldtype": "Section Break",
+   "label": "Duration"
+  },
+  {
+   "fieldname": "elapsed_days",
+   "fieldtype": "Float",
+   "label": "Elapsed Days",
+   "precision": "2",
+   "read_only": 1,
+   "description": "Dispatch to return, unrounded."
+  },
+  {
+   "fieldname": "downtime_days",
+   "fieldtype": "Float",
+   "label": "Approved Downtime Days",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_duration",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "billable_days",
+   "fieldtype": "Float",
+   "label": "Billable Days",
+   "precision": "2",
+   "read_only": 1,
+   "description": "Elapsed time less approved downtime and adjustment, rounded up to whole days (Q-16)."
+  },
+  {
+   "fieldname": "overdue_days",
+   "fieldtype": "Float",
+   "label": "Overdue Days",
+   "precision": "2",
+   "read_only": 1,
+   "description": "Days past the agreed end date plus the grace days."
+  },
+  {
+   "fieldname": "rental_amount",
+   "fieldtype": "Currency",
+   "label": "Rent",
+   "read_only": 1
+  },
+  {
+   "fieldname": "previous_meter_reading",
+   "fieldtype": "Float",
+   "label": "Previous Meter Reading",
+   "precision": "1",
+   "read_only": 1,
+   "hidden": 1,
+   "no_copy": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-09-17 12:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Asset Leasing",
+ "name": "Rental Return Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1
+}

@@ -1,0 +1,39 @@
+{
+ "attach_print": 0,
+ "channel": "System Notification",
+ "condition_type": "Python",
+ "creation": "2026-09-17 14:00:00.000000",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "enabled": 1,
+ "idx": 0,
+ "is_standard": 1,
+ "message": "<p>Equipment on <a href=\"{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}\">{{ doc.name }}</a> for <b>{{ doc.customer_name }}</b> is still on hire after its expected return on {{ frappe.format(doc.expected_end_date, 'Date') }} plus the grace period.</p><ul>{% for row in doc.items %}{% if row.line_status == 'On Hire' %}<li>{{ row.asset }} {{ row.asset_name or '' }}</li>{% endif %}{% endfor %}</ul>\n",
+ "message_type": "HTML",
+ "method": "al_overdue_detected",
+ "minutes_offset": 0,
+ "modified": "2026-09-17 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Asset Leasing",
+ "name": "Hire Return Overdue",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "receiver_by_role": "Leasing Hire Desk"
+  },
+  {
+   "receiver_by_role": "Leasing Manager"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "sender_email": "",
+ "value_changed": null,
+ "date_changed": null,
+ "document_type": "Rental Agreement",
+ "event": "Method",
+ "condition": "doc.is_overdue",
+ "subject": "Overdue: equipment on {{ doc.name }} ({{ doc.customer_name }}) was due back {{ frappe.format(doc.expected_end_date, 'Date') }}",
+ "notification_message": "<p>Equipment on <a href=\"{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}\">{{ doc.name }}</a> for <b>{{ doc.customer_name }}</b> is still on hire after its expected return on {{ frappe.format(doc.expected_end_date, 'Date') }} plus the grace period.</p><ul>{% for row in doc.items %}{% if row.line_status == 'On Hire' %}<li>{{ row.asset }} {{ row.asset_name or '' }}</li>{% endif %}{% endfor %}</ul>"
+}

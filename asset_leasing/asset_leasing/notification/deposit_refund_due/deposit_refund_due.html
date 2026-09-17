@@ -1,0 +1,1 @@
+<p>Rental Agreement <a href="{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}">{{ doc.name }}</a> for <b>{{ doc.customer_name }}</b> is closed with a security deposit of {{ frappe.format(doc.deposit_held, {'fieldtype': 'Currency'}) }} held. Settle any approved damage, then refund the balance from the agreement.</p>

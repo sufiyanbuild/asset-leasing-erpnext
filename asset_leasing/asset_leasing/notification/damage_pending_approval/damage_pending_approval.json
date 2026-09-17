@@ -1,0 +1,36 @@
+{
+ "attach_print": 0,
+ "channel": "System Notification",
+ "condition_type": "Python",
+ "creation": "2026-09-17 14:00:00.000000",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "enabled": 1,
+ "idx": 0,
+ "is_standard": 1,
+ "message": "<p>Inspection of return <a href=\"{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}\">{{ doc.name }}</a> for <b>{{ doc.customer_name }}</b> recorded damage.</p><ul>{% for d in doc.damages %}<li>{{ d.asset }}: {{ d.severity }} - {{ d.damage_description }} ({{ frappe.format(d.estimated_cost, {'fieldtype': 'Currency'}) }}{{ '' if d.chargeable_to_customer else ', not chargeable' }})</li>{% endfor %}</ul><p>Approve the charges to complete the return.</p>\n",
+ "message_type": "HTML",
+ "method": "",
+ "minutes_offset": 0,
+ "modified": "2026-09-17 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Asset Leasing",
+ "name": "Damage Pending Approval",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "receiver_by_role": "Leasing Manager"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "sender_email": "",
+ "value_changed": "workflow_state",
+ "date_changed": null,
+ "document_type": "Rental Return",
+ "event": "Value Change",
+ "condition": "doc.workflow_state == \"Damage Assessed\"",
+ "subject": "Damage charges on {{ doc.name }} ({{ doc.customer_name }}) need approval",
+ "notification_message": "<p>Inspection of return <a href=\"{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}\">{{ doc.name }}</a> for <b>{{ doc.customer_name }}</b> recorded damage.</p><ul>{% for d in doc.damages %}<li>{{ d.asset }}: {{ d.severity }} - {{ d.damage_description }} ({{ frappe.format(d.estimated_cost, {'fieldtype': 'Currency'}) }}{{ '' if d.chargeable_to_customer else ', not chargeable' }})</li>{% endfor %}</ul><p>Approve the charges to complete the return.</p>"
+}

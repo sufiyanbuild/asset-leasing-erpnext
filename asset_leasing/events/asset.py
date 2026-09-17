@@ -4,11 +4,13 @@ import frappe
 from frappe import _
 
 from asset_leasing.rental.asset_status import AVAILABLE, OUT_OF_YARD, RETIRED, assert_transition
+from asset_leasing.rental.compliance import compliance_status
 from asset_leasing.rental.validators import assert_not_fixed_asset_item, assert_yard_location
 
 
 def validate(doc, method=None):
 	_guard_status_change(doc)
+	doc.al_compliance_status = compliance_status(doc)
 
 	if not doc.get("al_is_rentable"):
 		_guard_withdrawal(doc)

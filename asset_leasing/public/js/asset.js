@@ -28,10 +28,25 @@ frappe.ui.form.on('Asset', {
 			'Retired': 'grey',
 		}[frm.doc.al_rental_status] || 'grey';
 
-		frm.dashboard.set_headline(
-			__('Rental status: {0}', [frm.doc.al_rental_status || __('Available')]),
-			colour
-		);
+		let headline = __('Rental status: {0}', [frm.doc.al_rental_status || __('Available')]);
+		if (frm.doc.al_current_customer) {
+			headline += ' · ' + __('{0} ({1})', [frm.doc.al_current_customer, frm.doc.al_current_agreement || '']);
+		}
+		frm.dashboard.set_headline(headline, colour);
+
+		if (['Expired', 'Expiring Soon'].includes(frm.doc.al_compliance_status)) {
+			frm.dashboard.add_comment(
+				frm.doc.al_compliance_status === 'Expired'
+					? __('A compliance document (insurance, fitness or permit) has expired. This machine cannot be dispatched.')
+					: __('A compliance document (insurance, fitness or permit) expires within 30 days.'),
+				frm.doc.al_compliance_status === 'Expired' ? 'red' : 'orange',
+				true
+			);
+		}
+
+		frm.add_custom_button(__('Hire History'), () => {
+			frappe.set_route('query-report', 'Asset Rental History', { company: frm.doc.company, asset: frm.doc.name });
+		}, __('View'));
 	},
 
 	al_is_rentable(frm) {

@@ -1,0 +1,23 @@
+{
+ "docstatus": 0,
+ "idx": 0,
+ "creation": "2026-09-17 13:30:00.000000",
+ "modified": "2026-09-17 13:30:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "module": "Asset Leasing",
+ "doctype": "Number Card",
+ "name": "Deposits Held",
+ "label": "Deposits Held",
+ "is_public": 1,
+ "is_standard": 1,
+ "show_percentage_stats": 0,
+ "stats_time_interval": "Monthly",
+ "dynamic_filters_json": "[]",
+ "type": "Document Type",
+ "document_type": "Customer",
+ "function": "Sum",
+ "aggregate_function_based_on": "al_deposit_held",
+ "filters_json": "[[\"Customer\", \"al_deposit_held\", \">\", 0, false]]",
+ "color": "#5E64FF"
+}

@@ -1,0 +1,36 @@
+{
+ "attach_print": 0,
+ "channel": "System Notification",
+ "condition_type": "Python",
+ "creation": "2026-09-17 14:00:00.000000",
+ "days_in_advance": 0,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "enabled": 1,
+ "idx": 0,
+ "is_standard": 1,
+ "message": "<p>Rental Agreement <a href=\"{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}\">{{ doc.name }}</a> for <b>{{ doc.customer_name }}</b> is closed with a security deposit of {{ frappe.format(doc.deposit_held, {'fieldtype': 'Currency'}) }} held. Settle any approved damage, then refund the balance from the agreement.</p>\n",
+ "message_type": "HTML",
+ "method": "al_agreement_closed",
+ "minutes_offset": 0,
+ "modified": "2026-09-17 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Asset Leasing",
+ "name": "Deposit Refund Due",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "receiver_by_role": "Leasing Finance"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "sender_email": "",
+ "value_changed": null,
+ "date_changed": null,
+ "document_type": "Rental Agreement",
+ "event": "Method",
+ "condition": "doc.deposit_held > 0",
+ "subject": "{{ doc.name }} is closed - security deposit to settle for {{ doc.customer_name }}",
+ "notification_message": "<p>Rental Agreement <a href=\"{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}\">{{ doc.name }}</a> for <b>{{ doc.customer_name }}</b> is closed with a security deposit of {{ frappe.format(doc.deposit_held, {'fieldtype': 'Currency'}) }} held. Settle any approved damage, then refund the balance from the agreement.</p>"
+}

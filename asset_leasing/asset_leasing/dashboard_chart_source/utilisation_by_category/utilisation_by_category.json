@@ -1,0 +1,13 @@
+{
+ "docstatus": 0,
+ "idx": 0,
+ "creation": "2026-09-17 13:30:00.000000",
+ "modified": "2026-09-17 13:30:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "module": "Asset Leasing",
+ "doctype": "Dashboard Chart Source",
+ "name": "Utilisation by Category",
+ "source_name": "Utilisation by Category",
+ "timeseries": 0
+}

@@ -39,9 +39,20 @@ PERMISSIONS = {
 	"Price List": {HIRE_DESK: R, FINANCE: R, MANAGER: CRW, MANAGEMENT: R},
 	"Customer": {HIRE_DESK: CRW, YARD: R, FINANCE: RW, MANAGER: CRW, MANAGEMENT: R},
 	"Asset Repair": {HIRE_DESK: R, YARD: CR, TECH: CRWS, FINANCE: R, MANAGER: RWSX, MANAGEMENT: R},
-	"Asset Movement": {HIRE_DESK: R, YARD: R, TECH: R, MANAGER: R, MANAGEMENT: R},
+	"Asset Movement": {HIRE_DESK: R, YARD: R, TECH: R, FINANCE: R, MANAGER: RWSX, MANAGEMENT: R},
 	"Sales Invoice": {HIRE_DESK: R, FINANCE: CRWS, MANAGER: RS, MANAGEMENT: R},
 	"Asset Leasing Settings": {MANAGEMENT: R},
+	# P5 - deposits are Payment Entries; Finance records them.
+	"Payment Entry": {HIRE_DESK: R, FINANCE: CRWS, MANAGER: R, MANAGEMENT: R},
+	# P6 - long-term billing calendar. Created by the agreement; Finance tends it.
+	"Subscription": {HIRE_DESK: R, FINANCE: RW, MANAGER: R, MANAGEMENT: R},
+	"Subscription Plan": {HIRE_DESK: R, FINANCE: R, MANAGER: R, MANAGEMENT: R},
+	# AL-20 - preventive maintenance is standard ERPNext, run by the technicians.
+	"Asset Maintenance": {YARD: R, TECH: CRW, MANAGER: CRW, MANAGEMENT: R},
+	"Asset Maintenance Log": {YARD: R, TECH: CRWS, MANAGER: RWSX, MANAGEMENT: R},
+	"Asset Maintenance Team": {TECH: R, MANAGER: CRW},
+	# AL-24 - operators on wet hire.
+	"Employee": {HIRE_DESK: R, YARD: R, MANAGER: R},
 }
 
 # Commercially sensitive fields sit at permlevel 1. Only these roles read them.

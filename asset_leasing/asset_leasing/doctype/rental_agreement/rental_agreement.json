@@ -8,125 +8,451 @@
  "track_changes": 1,
  "title_field": "customer_name",
  "field_order": [
-  "naming_series", "customer", "customer_name", "company",
-  "cb_head", "agreement_type", "hire_type", "operator", "status",
-  "sb_period", "start_date", "is_open_ended", "expected_end_date",
-  "cb_period", "actual_end_date", "currency",
-  "sb_site", "site_location", "customer_address",
-  "cb_site", "contact_person",
-  "sb_items", "items",
-  "sb_commercial", "security_deposit_amount", "deposit_received",
-  "cb_commercial", "mobilisation_charge", "demobilisation_charge",
-  "sb_totals", "estimated_rental_value", "cb_totals", "total_billed_amount",
-  "sb_links", "subscription",
-  "sb_terms", "terms",
+  "naming_series",
+  "customer",
+  "customer_name",
+  "company",
+  "cb_head",
+  "agreement_type",
+  "hire_type",
+  "operator",
+  "status",
+  "sb_period",
+  "start_date",
+  "is_open_ended",
+  "expected_end_date",
+  "cb_period",
+  "actual_end_date",
+  "is_overdue",
+  "overdue_since",
+  "currency",
+  "sb_site",
+  "site_location",
+  "customer_address",
+  "cb_site",
+  "contact_person",
+  "sb_items",
+  "items",
+  "sb_commercial",
+  "security_deposit_amount",
+  "deposit_received",
+  "deposit_held",
+  "cb_commercial",
+  "mobilisation_charge",
+  "demobilisation_charge",
+  "sb_totals",
+  "estimated_rental_value",
+  "cb_totals",
+  "total_billed_amount",
+  "sb_links",
+  "subscription",
+  "cb_links",
+  "quotation",
+  "sb_terms",
+  "terms",
   "amended_from"
  ],
  "fields": [
-  {"fieldname": "naming_series", "fieldtype": "Select", "options": "RA-.YYYY.-.####",
-   "default": "RA-.YYYY.-.####", "label": "Series", "reqd": 1, "read_only": 1},
-  {"fieldname": "customer", "fieldtype": "Link", "options": "Customer", "label": "Customer",
-   "reqd": 1, "in_standard_filter": 1, "search_index": 1},
-  {"fieldname": "customer_name", "fieldtype": "Data", "label": "Customer Name",
-   "fetch_from": "customer.customer_name", "read_only": 1, "in_list_view": 1},
-  {"fieldname": "company", "fieldtype": "Link", "options": "Company", "label": "Company",
-   "reqd": 1, "in_standard_filter": 1},
-
-  {"fieldname": "cb_head", "fieldtype": "Column Break"},
-  {"fieldname": "agreement_type", "fieldtype": "Select",
-   "options": "Short Term Hire\nLong Term Contract", "default": "Short Term Hire",
-   "label": "Agreement Type", "reqd": 1, "in_standard_filter": 1,
-   "description": "Short Term bills on actual duration at return. Long Term bills on a recurring cycle through a Subscription."},
-  {"fieldname": "hire_type", "fieldtype": "Select", "options": "Dry Hire\nWet Hire",
-   "default": "Dry Hire", "label": "Hire Type", "reqd": 1,
-   "description": "Wet Hire supplies an operator with the machine."},
-  {"fieldname": "operator", "fieldtype": "Link", "options": "Employee", "label": "Operator",
-   "depends_on": "eval:doc.hire_type=='Wet Hire'",
-   "mandatory_depends_on": "eval:doc.hire_type=='Wet Hire'"},
-  {"fieldname": "status", "fieldtype": "Select",
-   "options": "Draft\nApproved\nActive\nPartially Returned\nClosed\nCancelled",
-   "default": "Draft", "label": "Status", "read_only": 1, "in_list_view": 1,
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "options": "RA-.YYYY.-.####",
+   "default": "RA-.YYYY.-.####",
+   "label": "Series",
+   "reqd": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "options": "Customer",
+   "label": "Customer",
+   "reqd": 1,
    "in_standard_filter": 1,
-   "description": "Operational state, maintained by dispatch and return. Separate from the approval workflow."},
-
-  {"fieldname": "sb_period", "fieldtype": "Section Break", "label": "Hire Period"},
-  {"fieldname": "start_date", "fieldtype": "Date", "label": "Start Date", "reqd": 1,
-   "in_list_view": 1},
-  {"fieldname": "is_open_ended", "fieldtype": "Check", "default": "0", "label": "Open Ended",
-   "description": "The customer returns the machine when finished; no end date is agreed."},
-  {"fieldname": "expected_end_date", "fieldtype": "Date", "label": "Expected End Date",
+   "search_index": 1
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "fetch_from": "customer.customer_name",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Company",
+   "reqd": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "cb_head",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "agreement_type",
+   "fieldtype": "Select",
+   "options": "Short Term Hire\nLong Term Contract",
+   "default": "Short Term Hire",
+   "label": "Agreement Type",
+   "reqd": 1,
+   "in_standard_filter": 1,
+   "description": "Short Term bills on actual duration at return. Long Term bills on a recurring cycle through a Subscription."
+  },
+  {
+   "fieldname": "hire_type",
+   "fieldtype": "Select",
+   "options": "Dry Hire\nWet Hire",
+   "default": "Dry Hire",
+   "label": "Hire Type",
+   "reqd": 1,
+   "description": "Wet Hire supplies an operator with the machine."
+  },
+  {
+   "fieldname": "operator",
+   "fieldtype": "Link",
+   "options": "Employee",
+   "label": "Operator",
+   "depends_on": "eval:doc.hire_type=='Wet Hire'",
+   "mandatory_depends_on": "eval:doc.hire_type=='Wet Hire'"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "options": "Draft\nApproved\nActive\nPartially Returned\nClosed\nCancelled",
+   "default": "Draft",
+   "label": "Status",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "description": "Operational state, maintained by dispatch and return. Separate from the approval workflow.",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "sb_period",
+   "fieldtype": "Section Break",
+   "label": "Hire Period"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "is_open_ended",
+   "fieldtype": "Check",
+   "default": "0",
+   "label": "Open Ended",
+   "description": "Short Term Hire only. The customer returns the machine when finished; no end date is agreed."
+  },
+  {
+   "fieldname": "expected_end_date",
+   "fieldtype": "Date",
+   "label": "Expected End Date",
    "depends_on": "eval:!doc.is_open_ended",
-   "mandatory_depends_on": "eval:!doc.is_open_ended"},
-
-  {"fieldname": "cb_period", "fieldtype": "Column Break"},
-  {"fieldname": "actual_end_date", "fieldtype": "Date", "label": "Actual End Date", "read_only": 1},
-  {"fieldname": "currency", "fieldtype": "Link", "options": "Currency", "label": "Currency"},
-
-  {"fieldname": "sb_site", "fieldtype": "Section Break", "label": "Site"},
-  {"fieldname": "site_location", "fieldtype": "Link", "options": "Location",
-   "label": "Site Location", "reqd": 1,
-   "description": "Where the equipment is going. Normally a Customer Site."},
-  {"fieldname": "customer_address", "fieldtype": "Link", "options": "Address", "label": "Customer Address"},
-
-  {"fieldname": "cb_site", "fieldtype": "Column Break"},
-  {"fieldname": "contact_person", "fieldtype": "Link", "options": "Contact", "label": "Site Contact"},
-
-  {"fieldname": "sb_items", "fieldtype": "Section Break", "label": "Equipment"},
-  {"fieldname": "items", "fieldtype": "Table", "options": "Rental Agreement Item",
-   "label": "Equipment", "reqd": 1},
-
-  {"fieldname": "sb_commercial", "fieldtype": "Section Break", "label": "Commercial Terms",
-   "collapsible": 1},
-  {"fieldname": "security_deposit_amount", "fieldtype": "Currency", "default": "0",
-   "options": "currency", "label": "Security Deposit", "permlevel": 1},
-  {"fieldname": "deposit_received", "fieldtype": "Check", "default": "0",
-   "label": "Deposit Received", "read_only": 1, "permlevel": 1},
-
-  {"fieldname": "cb_commercial", "fieldtype": "Column Break"},
-  {"fieldname": "mobilisation_charge", "fieldtype": "Currency", "default": "0",
-   "options": "currency", "label": "Mobilisation Charge", "permlevel": 1},
-  {"fieldname": "demobilisation_charge", "fieldtype": "Currency", "default": "0",
-   "options": "currency", "label": "Demobilisation Charge", "permlevel": 1},
-
-  {"fieldname": "sb_totals", "fieldtype": "Section Break", "label": "Values", "collapsible": 1},
-  {"fieldname": "estimated_rental_value", "fieldtype": "Currency", "options": "currency",
-   "label": "Estimated Rental Value", "read_only": 1, "permlevel": 1,
-   "description": "Left blank until the pro-rata policy (Q-14 to Q-18) is confirmed."},
-  {"fieldname": "cb_totals", "fieldtype": "Column Break"},
-  {"fieldname": "total_billed_amount", "fieldtype": "Currency", "options": "currency",
-   "label": "Total Billed", "read_only": 1, "permlevel": 1},
-
-  {"fieldname": "sb_links", "fieldtype": "Section Break", "label": "Billing Link", "collapsible": 1},
-  {"fieldname": "subscription", "fieldtype": "Link", "options": "Subscription",
-   "label": "Subscription", "read_only": 1,
-   "description": "Created for Long Term Contracts in P6."},
-
-  {"fieldname": "sb_terms", "fieldtype": "Section Break", "label": "Terms", "collapsible": 1},
-  {"fieldname": "terms", "fieldtype": "Text Editor", "label": "Terms and Conditions"},
-
-  {"fieldname": "amended_from", "fieldtype": "Link", "options": "Rental Agreement",
-   "label": "Amended From", "read_only": 1, "no_copy": 1, "print_hide": 1}
+   "mandatory_depends_on": "eval:!doc.is_open_ended"
+  },
+  {
+   "fieldname": "cb_period",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "actual_end_date",
+   "fieldtype": "Date",
+   "label": "Actual End Date",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "is_overdue",
+   "fieldtype": "Check",
+   "label": "Overdue",
+   "read_only": 1,
+   "no_copy": 1,
+   "allow_on_submit": 1,
+   "in_standard_filter": 1,
+   "description": "Set by the daily overdue check once the expected end date plus the grace days has passed with equipment still on hire."
+  },
+  {
+   "fieldname": "overdue_since",
+   "fieldtype": "Date",
+   "label": "Overdue Since",
+   "read_only": 1,
+   "no_copy": 1,
+   "allow_on_submit": 1,
+   "depends_on": "eval:doc.is_overdue"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "options": "Currency",
+   "label": "Currency"
+  },
+  {
+   "fieldname": "sb_site",
+   "fieldtype": "Section Break",
+   "label": "Site"
+  },
+  {
+   "fieldname": "site_location",
+   "fieldtype": "Link",
+   "options": "Location",
+   "label": "Site Location",
+   "reqd": 1,
+   "description": "Where the equipment is going. Normally a Customer Site."
+  },
+  {
+   "fieldname": "customer_address",
+   "fieldtype": "Link",
+   "options": "Address",
+   "label": "Customer Address"
+  },
+  {
+   "fieldname": "cb_site",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contact_person",
+   "fieldtype": "Link",
+   "options": "Contact",
+   "label": "Site Contact"
+  },
+  {
+   "fieldname": "sb_items",
+   "fieldtype": "Section Break",
+   "label": "Equipment"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "options": "Rental Agreement Item",
+   "label": "Equipment",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sb_commercial",
+   "fieldtype": "Section Break",
+   "label": "Commercial Terms",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "security_deposit_amount",
+   "fieldtype": "Currency",
+   "default": "0",
+   "options": "currency",
+   "label": "Security Deposit",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "deposit_received",
+   "fieldtype": "Check",
+   "default": "0",
+   "label": "Deposit Received",
+   "read_only": 1,
+   "permlevel": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "deposit_held",
+   "fieldtype": "Currency",
+   "options": "currency",
+   "label": "Deposit Held",
+   "read_only": 1,
+   "no_copy": 1,
+   "permlevel": 1,
+   "description": "Deposits received less refunds, from Payment Entries tagged with this agreement."
+  },
+  {
+   "fieldname": "cb_commercial",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mobilisation_charge",
+   "fieldtype": "Currency",
+   "default": "0",
+   "options": "currency",
+   "label": "Mobilisation Charge",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "demobilisation_charge",
+   "fieldtype": "Currency",
+   "default": "0",
+   "options": "currency",
+   "label": "Demobilisation Charge",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "sb_totals",
+   "fieldtype": "Section Break",
+   "label": "Values",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "estimated_rental_value",
+   "fieldtype": "Currency",
+   "options": "currency",
+   "label": "Estimated Rental Value",
+   "read_only": 1,
+   "permlevel": 1,
+   "description": "Left blank until the pro-rata policy (Q-14 to Q-18) is confirmed."
+  },
+  {
+   "fieldname": "cb_totals",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_billed_amount",
+   "fieldtype": "Currency",
+   "options": "currency",
+   "label": "Total Billed",
+   "read_only": 1,
+   "permlevel": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "sb_links",
+   "fieldtype": "Section Break",
+   "label": "Billing Link",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "subscription",
+   "fieldtype": "Link",
+   "options": "Subscription",
+   "label": "Subscription",
+   "read_only": 1,
+   "description": "Created for Long Term Contracts in P6.",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "cb_links",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "quotation",
+   "fieldtype": "Link",
+   "options": "Quotation",
+   "label": "Quotation",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "sb_terms",
+   "fieldtype": "Section Break",
+   "label": "Terms",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "terms",
+   "fieldtype": "Text Editor",
+   "label": "Terms and Conditions"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Rental Agreement",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  }
  ],
  "links": [],
- "modified": "2026-09-15 00:00:00.000000",
+ "modified": "2026-09-17 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Asset Leasing",
  "name": "Rental Agreement",
  "owner": "Administrator",
  "permissions": [
-  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1, "submit": 1, "cancel": 1, "amend": 1, "report": 1, "export": 1, "share": 1, "print": 1, "email": 1},
-  {"role": "Leasing Manager", "read": 1, "write": 1, "create": 1, "submit": 1, "cancel": 1, "amend": 1, "report": 1, "export": 1, "print": 1, "email": 1},
-  {"role": "Leasing Hire Desk", "read": 1, "write": 1, "create": 1, "report": 1, "print": 1},
-  {"role": "Leasing Finance", "read": 1, "report": 1, "print": 1},
-  {"role": "Leasing Yard Supervisor", "read": 1, "report": 1, "print": 1},
-  {"role": "Leasing Maintenance Technician", "read": 1},
-  {"role": "Leasing Management", "read": 1, "report": 1, "print": 1},
-  {"role": "Leasing Manager", "permlevel": 1, "read": 1, "write": 1},
-  {"role": "Leasing Finance", "permlevel": 1, "read": 1},
-  {"role": "Leasing Management", "permlevel": 1, "read": 1},
-  {"role": "System Manager", "permlevel": 1, "read": 1, "write": 1}
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "report": 1,
+   "export": 1,
+   "share": 1,
+   "print": 1,
+   "email": 1
+  },
+  {
+   "role": "Leasing Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1
+  },
+  {
+   "role": "Leasing Hire Desk",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "report": 1,
+   "print": 1
+  },
+  {
+   "role": "Leasing Finance",
+   "read": 1,
+   "report": 1,
+   "print": 1
+  },
+  {
+   "role": "Leasing Yard Supervisor",
+   "read": 1,
+   "report": 1,
+   "print": 1
+  },
+  {
+   "role": "Leasing Maintenance Technician",
+   "read": 1
+  },
+  {
+   "role": "Leasing Management",
+   "read": 1,
+   "report": 1,
+   "print": 1
+  },
+  {
+   "role": "Leasing Manager",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "Leasing Finance",
+   "permlevel": 1,
+   "read": 1
+  },
+  {
+   "role": "Leasing Management",
+   "permlevel": 1,
+   "read": 1
+  },
+  {
+   "role": "System Manager",
+   "permlevel": 1,
+   "read": 1,
+   "write": 1
+  }
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "default_print_format": "Rental Agreement",
+ "search_fields": "customer_name,site_location"
 }

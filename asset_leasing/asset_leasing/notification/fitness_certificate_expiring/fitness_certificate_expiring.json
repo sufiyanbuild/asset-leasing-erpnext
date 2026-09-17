@@ -1,0 +1,36 @@
+{
+ "attach_print": 0,
+ "channel": "System Notification",
+ "condition_type": "Python",
+ "creation": "2026-09-17 14:00:00.000000",
+ "days_in_advance": 30,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "enabled": 1,
+ "idx": 0,
+ "is_standard": 1,
+ "message": "<p>The fitness certificate for <a href=\"{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}\">{{ doc.name }}</a> ({{ doc.asset_name }}) expires on {{ frappe.format(doc.al_fitness_expiry, 'Date') }}. Once it expires the machine cannot be dispatched.</p>\n",
+ "message_type": "HTML",
+ "method": "",
+ "minutes_offset": 0,
+ "modified": "2026-09-17 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Asset Leasing",
+ "name": "Fitness Certificate Expiring",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "receiver_by_role": "Leasing Yard Supervisor"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "sender_email": "",
+ "value_changed": null,
+ "date_changed": "al_fitness_expiry",
+ "document_type": "Asset",
+ "event": "Days Before",
+ "condition": "doc.docstatus == 1 and doc.al_is_rentable",
+ "subject": "Fitness certificate for {{ doc.asset_name }} expires {{ frappe.format(doc.al_fitness_expiry, 'Date') }}",
+ "notification_message": "<p>The fitness certificate for <a href=\"{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}\">{{ doc.name }}</a> ({{ doc.asset_name }}) expires on {{ frappe.format(doc.al_fitness_expiry, 'Date') }}. Once it expires the machine cannot be dispatched.</p>"
+}

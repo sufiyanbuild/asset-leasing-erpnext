@@ -1,0 +1,108 @@
+{
+ "actions": [],
+ "creation": "2026-09-17 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "asset",
+  "asset_name",
+  "agreement_item",
+  "condition_out",
+  "meter_reading_out",
+  "fuel_level_out",
+  "cb_extra",
+  "accessories",
+  "photo_out",
+  "previous_meter_reading"
+ ],
+ "fields": [
+  {
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "options": "Asset",
+   "label": "Equipment",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "label": "Equipment Name",
+   "fetch_from": "asset.asset_name",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "agreement_item",
+   "fieldtype": "Data",
+   "label": "Agreement Line",
+   "read_only": 1,
+   "hidden": 1,
+   "no_copy": 1,
+   "description": "Row name of the Rental Agreement Item this dispatch fulfils."
+  },
+  {
+   "fieldname": "condition_out",
+   "fieldtype": "Select",
+   "options": "\nExcellent\nGood\nFair\nPoor",
+   "label": "Condition Out",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2,
+   "description": "Baseline for the damage assessment at return."
+  },
+  {
+   "fieldname": "meter_reading_out",
+   "fieldtype": "Float",
+   "label": "Meter Reading Out",
+   "precision": "1",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "fuel_level_out",
+   "fieldtype": "Percent",
+   "label": "Fuel Level Out",
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "cb_extra",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "accessories",
+   "fieldtype": "Small Text",
+   "label": "Accessories Issued",
+   "description": "Buckets, cables and tools that travel with the machine."
+  },
+  {
+   "fieldname": "photo_out",
+   "fieldtype": "Attach Image",
+   "label": "Photo at Dispatch"
+  },
+  {
+   "fieldname": "previous_meter_reading",
+   "fieldtype": "Float",
+   "label": "Previous Meter Reading",
+   "precision": "1",
+   "read_only": 1,
+   "hidden": 1,
+   "no_copy": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-09-17 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Asset Leasing",
+ "name": "Rental Dispatch Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1
+}

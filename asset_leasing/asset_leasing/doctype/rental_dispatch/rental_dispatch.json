@@ -1,0 +1,301 @@
+{
+ "actions": [],
+ "creation": "2026-09-17 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "rental_agreement",
+  "customer",
+  "customer_name",
+  "company",
+  "cb_head",
+  "dispatch_datetime",
+  "dispatched_by",
+  "status",
+  "sb_route",
+  "from_location",
+  "cb_route",
+  "to_location",
+  "sb_items",
+  "items",
+  "sb_transport",
+  "transport_mode",
+  "vehicle_no",
+  "driver_name",
+  "cb_transport",
+  "lr_number",
+  "eway_bill_no",
+  "received_by_name",
+  "sb_more",
+  "asset_movement",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "options": "RD-.YYYY.-.####",
+   "label": "Series",
+   "default": "RD-.YYYY.-.####",
+   "reqd": 1,
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "rental_agreement",
+   "fieldtype": "Link",
+   "options": "Rental Agreement",
+   "label": "Rental Agreement",
+   "reqd": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "options": "Customer",
+   "label": "Customer",
+   "fetch_from": "rental_agreement.customer",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "fetch_from": "rental_agreement.customer_name",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "options": "Company",
+   "label": "Company",
+   "fetch_from": "rental_agreement.company",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "cb_head",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "dispatch_datetime",
+   "fieldtype": "Datetime",
+   "label": "Dispatched On",
+   "default": "Now",
+   "reqd": 1,
+   "in_list_view": 1,
+   "description": "Starts the billing clock. Cannot precede the agreement start or lie in the future."
+  },
+  {
+   "fieldname": "dispatched_by",
+   "fieldtype": "Link",
+   "options": "User",
+   "label": "Dispatched By",
+   "default": "__user"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "options": "Draft\nDispatched\nCancelled",
+   "label": "Status",
+   "default": "Draft",
+   "read_only": 1,
+   "in_list_view": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "sb_route",
+   "fieldtype": "Section Break",
+   "label": "Route"
+  },
+  {
+   "fieldname": "from_location",
+   "fieldtype": "Link",
+   "options": "Location",
+   "label": "From Yard",
+   "reqd": 1,
+   "description": "Every machine on this dispatch must currently be at this yard."
+  },
+  {
+   "fieldname": "cb_route",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "to_location",
+   "fieldtype": "Link",
+   "options": "Location",
+   "label": "To Site",
+   "fetch_from": "rental_agreement.site_location",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "sb_items",
+   "fieldtype": "Section Break",
+   "label": "Equipment"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "options": "Rental Dispatch Item",
+   "label": "Equipment",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sb_transport",
+   "fieldtype": "Section Break",
+   "label": "Transport"
+  },
+  {
+   "fieldname": "transport_mode",
+   "fieldtype": "Select",
+   "options": "\nOwn Vehicle\nHired Transport\nCustomer Collected\nSelf Driven",
+   "label": "Transport Mode",
+   "reqd": 1
+  },
+  {
+   "fieldname": "vehicle_no",
+   "fieldtype": "Data",
+   "label": "Vehicle No",
+   "depends_on": "eval:['Own Vehicle','Hired Transport'].includes(doc.transport_mode)",
+   "mandatory_depends_on": "eval:['Own Vehicle','Hired Transport'].includes(doc.transport_mode)"
+  },
+  {
+   "fieldname": "driver_name",
+   "fieldtype": "Data",
+   "label": "Driver Name",
+   "depends_on": "eval:['Own Vehicle','Hired Transport'].includes(doc.transport_mode)",
+   "mandatory_depends_on": "eval:['Own Vehicle','Hired Transport'].includes(doc.transport_mode)"
+  },
+  {
+   "fieldname": "cb_transport",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lr_number",
+   "fieldtype": "Data",
+   "label": "LR / Consignment No"
+  },
+  {
+   "fieldname": "eway_bill_no",
+   "fieldtype": "Data",
+   "label": "E-way Bill No",
+   "description": "Entered manually (Q-09 open)."
+  },
+  {
+   "fieldname": "received_by_name",
+   "fieldtype": "Data",
+   "label": "Received By (Customer)"
+  },
+  {
+   "fieldname": "sb_more",
+   "fieldtype": "Section Break",
+   "label": "More Information",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "asset_movement",
+   "fieldtype": "Link",
+   "options": "Asset Movement",
+   "label": "Asset Movement",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "options": "Rental Dispatch",
+   "label": "Amended From",
+   "read_only": 1,
+   "no_copy": 1,
+   "print_hide": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-09-17 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Asset Leasing",
+ "name": "Rental Dispatch",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "create": 1,
+   "read": 1,
+   "write": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1,
+   "delete": 1,
+   "share": 1,
+   "export": 1
+  },
+  {
+   "role": "Leasing Yard Supervisor",
+   "create": 1,
+   "read": 1,
+   "write": 1,
+   "submit": 1,
+   "print": 1,
+   "report": 1
+  },
+  {
+   "role": "Leasing Manager",
+   "create": 1,
+   "read": 1,
+   "write": 1,
+   "submit": 1,
+   "cancel": 1,
+   "amend": 1,
+   "print": 1,
+   "email": 1,
+   "report": 1
+  },
+  {
+   "role": "Leasing Hire Desk",
+   "read": 1,
+   "print": 1,
+   "report": 1
+  },
+  {
+   "role": "Leasing Maintenance Technician",
+   "read": 1,
+   "print": 1
+  },
+  {
+   "role": "Leasing Finance",
+   "read": 1,
+   "print": 1,
+   "report": 1
+  },
+  {
+   "role": "Leasing Management",
+   "read": 1,
+   "print": 1,
+   "report": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "autoname": "naming_series:",
+ "is_submittable": 1,
+ "track_changes": 1,
+ "title_field": "customer_name",
+ "search_fields": "rental_agreement,customer_name",
+ "default_print_format": "Equipment Gate Pass"
+}

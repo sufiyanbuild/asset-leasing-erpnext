@@ -1,0 +1,1 @@
+<p>The insurance on <a href="{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}">{{ doc.name }}</a> ({{ doc.asset_name }}) expires on {{ frappe.format(doc.insurance_end_date, 'Date') }}. Once it expires the machine cannot be dispatched.</p>

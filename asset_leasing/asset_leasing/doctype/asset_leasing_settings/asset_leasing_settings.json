@@ -27,79 +27,211 @@
   "accounts_section",
   "damage_income_account",
   "accounts_cb",
-  "deposit_liability_account"
+  "deposit_liability_account",
+  "billing_items_section",
+  "damage_charge_item",
+  "billing_items_cb",
+  "transport_charge_item"
  ],
  "fields": [
-  {"fieldname": "pricing_section", "fieldtype": "Section Break", "label": "Pricing"},
-  {"fieldname": "monthly_price_list", "fieldtype": "Link", "options": "Price List",
+  {
+   "fieldname": "pricing_section",
+   "fieldtype": "Section Break",
+   "label": "Pricing"
+  },
+  {
+   "fieldname": "monthly_price_list",
+   "fieldtype": "Link",
+   "options": "Price List",
    "label": "Monthly Price List",
-   "description": "The only rental price list. Holds the agreed monthly rate per rental item. No daily or weekly lists exist by design (Q-01)."},
-  {"fieldname": "pricing_cb", "fieldtype": "Column Break"},
-  {"fieldname": "pricing_policy_confirmed", "fieldtype": "Check", "default": "0",
+   "description": "The only rental price list. Holds the agreed monthly rate per rental item. No daily or weekly lists exist by design (Q-01)."
+  },
+  {
+   "fieldname": "pricing_cb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pricing_policy_confirmed",
+   "fieldtype": "Check",
+   "default": "0",
    "label": "Pricing Policy Confirmed",
-   "description": "Leave unticked until Q-14 to Q-18 are answered by the client. While unticked, every pro-rata calculation refuses to run rather than assuming a policy."},
-
-  {"fieldname": "proration_section", "fieldtype": "Section Break",
-   "label": "Pro-rata Policy (Q-14 to Q-18 - unresolved)"},
-  {"fieldname": "policy_note", "fieldtype": "HTML",
-   "options": "<div style=\"padding:8px 10px;border-left:3px solid #b4690e;background:#fbeedc;color:#5a3a08;font-size:12px\">These five values are deliberately unset. The monthly rate is agreed; how a sub-month hire derives from it is not. Do not guess - confirm with the client, then tick <b>Pricing Policy Confirmed</b> above.</div>"},
-  {"fieldname": "proration_divisor_policy", "fieldtype": "Select",
+   "description": "Ticked once Q-14 to Q-18 are answered. While unticked, no rent is calculated and no rental invoice is raised."
+  },
+  {
+   "fieldname": "proration_section",
+   "fieldtype": "Section Break",
+   "label": "Pro-rata Policy (Q-14 to Q-18)"
+  },
+  {
+   "fieldname": "policy_note",
+   "fieldtype": "HTML",
+   "options": "<div style=\"padding:8px 10px;border-left:3px solid #2f7d4f;background:#e8f4ec;color:#1d4d31;font-size:12px\">Confirmed by the client on 17 Sep 2026: actual days in the month; no minimum period (logistics, damage and deposits are compensated separately); any part day is a full day; one divisor for the whole hire - the day count of the month in which the hire starts; the prorated amount may exceed the monthly rate (no cap). Change these only on a new client decision.</div>"
+  },
+  {
+   "fieldname": "proration_divisor_policy",
+   "fieldtype": "Select",
    "options": "\nFixed 30 Days\nActual Days in Month",
    "label": "Divisor Policy (Q-14)",
-   "description": "Divide the monthly rate by a fixed 30, or by the actual day count of the calendar month. Commercially material: at a fixed 30, a full January bills more than the monthly rate and a full February bills less."},
-  {"fieldname": "has_minimum_rental_period", "fieldtype": "Select", "options": "\nYes\nNo",
+   "description": "Divide the monthly rate by a fixed 30, or by the actual day count of the calendar month. Commercially material: at a fixed 30, a full January bills more than the monthly rate and a full February bills less."
+  },
+  {
+   "fieldname": "has_minimum_rental_period",
+   "fieldtype": "Select",
+   "options": "\nYes\nNo",
    "label": "Minimum Rental Period Applies (Q-15)",
-   "description": "Unset means undecided, which is not the same as No."},
-  {"fieldname": "minimum_billable_days", "fieldtype": "Int",
+   "description": "Unset means undecided, which is not the same as No."
+  },
+  {
+   "fieldname": "minimum_billable_days",
+   "fieldtype": "Int",
    "label": "Minimum Billable Days (Q-15)",
    "depends_on": "eval:doc.has_minimum_rental_period=='Yes'",
-   "mandatory_depends_on": "eval:doc.has_minimum_rental_period=='Yes'"},
-  {"fieldname": "proration_cb", "fieldtype": "Column Break"},
-  {"fieldname": "part_day_policy", "fieldtype": "Select",
+   "mandatory_depends_on": "eval:doc.has_minimum_rental_period=='Yes'"
+  },
+  {
+   "fieldname": "proration_cb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "part_day_policy",
+   "fieldtype": "Select",
    "options": "\nRound Up\nRound Down\nFractional",
    "label": "Part Day Policy (Q-16)",
-   "description": "A machine out 09:00 Monday and back 14:00 Wednesday is 2 days 5 hours."},
-  {"fieldname": "month_boundary_policy", "fieldtype": "Select",
+   "description": "A machine out 09:00 Monday and back 14:00 Wednesday is 2 days 5 hours."
+  },
+  {
+   "fieldname": "month_boundary_policy",
+   "fieldtype": "Select",
    "options": "\nSingle Divisor For Whole Hire\nSplit At Month End",
    "label": "Calendar Month Crossing (Q-17)",
-   "description": "Immaterial under a fixed divisor; material under actual-days."},
-  {"fieldname": "cap_at_monthly_rate", "fieldtype": "Select", "options": "\nYes\nNo",
+   "description": "Single Divisor: the whole hire uses the day count of the month it starts in. Split: each day is charged at the rate of its own month."
+  },
+  {
+   "fieldname": "cap_at_monthly_rate",
+   "fieldtype": "Select",
+   "options": "\nYes\nNo",
    "label": "Monthly Rate Is A Cap (Q-18)",
-   "description": "Can a pro-rata amount for one month or less exceed the monthly rate?"},
-
-  {"fieldname": "operations_section", "fieldtype": "Section Break", "label": "Operational Defaults"},
-  {"fieldname": "default_yard_location", "fieldtype": "Link", "options": "Location",
-   "label": "Default Yard Location"},
-  {"fieldname": "overdue_grace_days", "fieldtype": "Int", "default": "1",
-   "label": "Overdue Grace Days"},
-  {"fieldname": "operations_cb", "fieldtype": "Column Break"},
-  {"fieldname": "overdue_surcharge_percent", "fieldtype": "Percent", "default": "0",
+   "description": "Yes = a hire of a month or less never bills more than the monthly rate. No = bill as calculated, even above the monthly rate."
+  },
+  {
+   "fieldname": "operations_section",
+   "fieldtype": "Section Break",
+   "label": "Operational Defaults"
+  },
+  {
+   "fieldname": "default_yard_location",
+   "fieldtype": "Link",
+   "options": "Location",
+   "label": "Default Yard Location",
+   "description": "Proposed as the dispatch yard and the receiving yard."
+  },
+  {
+   "fieldname": "overdue_grace_days",
+   "fieldtype": "Int",
+   "default": "1",
+   "label": "Overdue Grace Days"
+  },
+  {
+   "fieldname": "operations_cb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "overdue_surcharge_percent",
+   "fieldtype": "Percent",
+   "default": "0",
    "label": "Overdue Surcharge %",
-   "description": "Zero means no surcharge, which is a safe default rather than an assumed policy."},
-  {"fieldname": "block_dispatch_if_maintenance_overdue", "fieldtype": "Check", "default": "1",
-   "label": "Block Dispatch If Maintenance Overdue"},
-  {"fieldname": "block_dispatch_if_credit_exceeded", "fieldtype": "Check", "default": "1",
-   "label": "Block Dispatch If Credit Limit Exceeded"},
-
-  {"fieldname": "accounts_section", "fieldtype": "Section Break", "label": "Accounts"},
-  {"fieldname": "damage_income_account", "fieldtype": "Link", "options": "Account",
-   "label": "Damage Recovery Income Account"},
-  {"fieldname": "accounts_cb", "fieldtype": "Column Break"},
-  {"fieldname": "deposit_liability_account", "fieldtype": "Link", "options": "Account",
-   "label": "Security Deposit Liability Account"}
+   "description": "Zero means no surcharge, which is a safe default rather than an assumed policy."
+  },
+  {
+   "fieldname": "block_dispatch_if_maintenance_overdue",
+   "fieldtype": "Check",
+   "default": "1",
+   "label": "Block Dispatch If Maintenance Overdue"
+  },
+  {
+   "fieldname": "block_dispatch_if_credit_exceeded",
+   "fieldtype": "Check",
+   "default": "1",
+   "label": "Block Dispatch If Credit Limit Exceeded"
+  },
+  {
+   "fieldname": "accounts_section",
+   "fieldtype": "Section Break",
+   "label": "Accounts"
+  },
+  {
+   "fieldname": "damage_income_account",
+   "fieldtype": "Link",
+   "options": "Account",
+   "label": "Damage Recovery Income Account",
+   "description": "Optional. Overrides the income account on damage recovery lines."
+  },
+  {
+   "fieldname": "accounts_cb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "deposit_liability_account",
+   "fieldtype": "Link",
+   "options": "Account",
+   "label": "Security Deposit Liability Account",
+   "description": "A Liability ledger (not a group, no account type) that holds refundable security deposits."
+  },
+  {
+   "fieldname": "billing_items_section",
+   "fieldtype": "Section Break",
+   "label": "Billing Items"
+  },
+  {
+   "fieldname": "damage_charge_item",
+   "fieldtype": "Link",
+   "options": "Item",
+   "label": "Damage Recovery Item",
+   "description": "Non-stock service item used on damage recovery invoices."
+  },
+  {
+   "fieldname": "billing_items_cb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "transport_charge_item",
+   "fieldtype": "Link",
+   "options": "Item",
+   "label": "Transport Charge Item",
+   "description": "Non-stock service item used for mobilisation and demobilisation charges."
+  }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-09-15 00:00:00.000000",
+ "modified": "2026-09-17 12:30:00.000000",
  "modified_by": "Administrator",
  "module": "Asset Leasing",
  "name": "Asset Leasing Settings",
  "owner": "Administrator",
  "permissions": [
-  {"role": "System Manager", "read": 1, "write": 1, "create": 1, "delete": 1, "print": 1, "email": 1, "share": 1},
-  {"role": "Leasing Manager", "read": 1, "write": 1},
-  {"role": "Leasing Hire Desk", "read": 1},
-  {"role": "Leasing Finance", "read": 1}
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "Leasing Manager",
+   "read": 1,
+   "write": 1
+  },
+  {
+   "role": "Leasing Hire Desk",
+   "read": 1
+  },
+  {
+   "role": "Leasing Finance",
+   "read": 1
+  }
  ],
  "sort_field": "modified",
  "sort_order": "DESC",

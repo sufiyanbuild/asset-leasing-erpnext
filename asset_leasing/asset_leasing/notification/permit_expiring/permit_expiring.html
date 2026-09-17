@@ -1,0 +1,1 @@
+<p>The permit for <a href="{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}">{{ doc.name }}</a> ({{ doc.asset_name }}) expires on {{ frappe.format(doc.al_permit_expiry, 'Date') }}. Once it expires the machine cannot be dispatched.</p>

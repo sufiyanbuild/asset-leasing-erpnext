@@ -10,6 +10,7 @@ from frappe.tests import IntegrationTestCase
 
 from asset_leasing.rental import asset_status as st
 from asset_leasing.tests.fixtures import (
+	CONFIRMED,
 	PREFIX,
 	ensure_company,
 	make_agreement,
@@ -134,11 +135,90 @@ class TestRentalAgreement(IntegrationTestCase):
 		self.assertIsNone(doc.expected_end_date)
 		self.assertEqual(doc.items[0].expected_days, 0)
 
-	# --------------------------------------------------------- pricing gated
-	def test_pricing_remains_gated(self):
-		"""P2 records the agreed monthly rate but must derive nothing from it."""
-		doc = make_agreement(self.customer, self.asset, "2027-08-01", "2027-08-31")
+	# ------------------------------------------------------------- pricing
+	def test_short_term_estimate_under_confirmed_policy(self):
+		"""The agreed period is priced; the billed rent is set only at return."""
+		with self.change_settings("Asset Leasing Settings", CONFIRMED):
+			doc = make_agreement(self.customer, self.asset, "2027-08-01", "2027-08-10")
 		self.assertEqual(doc.items[0].monthly_rate, 45000)
-		self.assertFalse(doc.items[0].line_amount, "line amount must stay blank until Q-14 to Q-18")
-		self.assertFalse(doc.items[0].billable_days, "billable days must stay blank")
-		self.assertFalse(doc.estimated_rental_value, "estimated value must stay blank")
+		self.assertEqual(doc.items[0].derived_daily_rate, 1451.61)
+		self.assertEqual(doc.estimated_rental_value, 14516.13)
+		self.assertFalse(doc.items[0].line_amount, "rent billed is set at return, not at booking")
+		self.assertFalse(doc.items[0].billable_days)
+
+	def test_no_estimate_while_policy_unconfirmed(self):
+		with self.change_settings("Asset Leasing Settings", {"pricing_policy_confirmed": 0}):
+			doc = make_agreement(self.customer, self.asset, "2027-08-01", "2027-08-31")
+		self.assertFalse(doc.estimated_rental_value)
+		self.assertFalse(doc.items[0].derived_daily_rate)
+
+	def test_open_ended_has_no_estimate(self):
+		with self.change_settings("Asset Leasing Settings", CONFIRMED):
+			doc = make_agreement(self.customer, self.asset, "2027-09-01", open_ended=True)
+		self.assertFalse(doc.estimated_rental_value)
+
+	def test_zero_rate_refused_at_approval(self):
+		"""VAL-17/VAL-28: a draft may lack a price; an approved hire may not."""
+		unpriced = make_item(f"{PREFIX} Unpriced Hire", is_fixed_asset=0, is_rental_item=1)
+		doc = make_agreement(self.customer, self.asset, "2027-10-01", "2027-10-31",
+							 items=[{"asset": self.asset, "rental_item": unpriced}])
+		self.assertFalse(doc.items[0].monthly_rate)
+		with self.assertRaisesRegex(frappe.ValidationError, "no monthly rate"):
+			doc.submit()
+
+	def test_free_of_charge_line_may_have_no_rate(self):
+		doc = make_agreement(self.customer, self.asset, "2027-11-01", "2027-11-30")
+		doc.items[0].is_free_of_charge = 1
+		doc.items[0].monthly_rate = 0
+		doc.save(ignore_permissions=True)
+		doc.submit()
+		self.assertEqual(doc.status, "Approved")
+
+	# ---------------------------------------------------------- long term
+	def test_long_term_must_have_a_fixed_term(self):
+		with self.assertRaisesRegex(frappe.ValidationError, "fixed term"):
+			make_agreement(self.customer, self.asset, "2027-01-01", open_ended=True,
+						   agreement_type="Long Term Contract")
+
+	def test_long_term_must_end_on_a_billing_boundary(self):
+		with self.assertRaisesRegex(frappe.ValidationError, "part-way"):
+			make_agreement(self.customer, self.asset, "2027-01-15", "2027-04-20",
+						   agreement_type="Long Term Contract")
+
+	def test_long_term_value_is_whole_months(self):
+		doc = make_agreement(self.customer, self.asset, "2027-01-15", "2027-07-14",
+							 agreement_type="Long Term Contract")
+		self.assertEqual(doc.estimated_rental_value, 45000 * 6)
+
+	# ----------------------------------------------------- holder display (15.1)
+	def test_cancelling_a_later_booking_keeps_the_earlier_hold(self):
+		november = make_agreement(self.customer, self.asset, "2027-11-01", "2027-11-30", submit=True)
+		december = make_agreement(self.other_customer, self.asset, "2027-12-01", "2027-12-31", submit=True)
+		asset = frappe.db.get_value("Asset", self.asset, ["al_current_agreement", "al_rental_status"], as_dict=True)
+		self.assertEqual(asset.al_current_agreement, november.name, "the earliest booking holds the machine")
+		december.cancel()
+		asset = frappe.db.get_value("Asset", self.asset, ["al_current_agreement", "al_rental_status"], as_dict=True)
+		self.assertEqual(asset.al_current_agreement, november.name)
+		self.assertEqual(asset.al_rental_status, st.RESERVED)
+		november.cancel()
+		self.assertEqual(frappe.db.get_value("Asset", self.asset, "al_rental_status"), st.AVAILABLE)
+
+	# ------------------------------------------------------- other guards
+	def test_retired_machine_refused(self):
+		frappe.db.set_value("Asset", self.asset, "al_rental_status", st.RETIRED)
+		with self.assertRaisesRegex(frappe.ValidationError, "retired"):
+			make_agreement(self.customer, self.asset, "2028-01-01", "2028-01-31")
+
+	def test_credit_limit_exceeded_is_refused(self):
+		customer = make_customer(f"{PREFIX} Over Limit")
+		doc = frappe.get_doc("Customer", customer)
+		doc.append("credit_limits", {"company": self.company, "credit_limit": 1000})
+		doc.save(ignore_permissions=True)
+		# Exposure within the limit: saving is fine, approval adds the estimate and is refused.
+		with self.change_settings("Asset Leasing Settings", CONFIRMED):
+			agreement = make_agreement(customer, self.asset, "2028-02-01", "2028-02-10")
+			with self.assertRaisesRegex(frappe.ValidationError, "credit limit"):
+				agreement.submit()
+			with self.change_settings("Asset Leasing Settings", {"block_dispatch_if_credit_exceeded": 0}):
+				agreement.reload()
+				agreement.submit()

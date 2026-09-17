@@ -1,0 +1,1 @@
+<p>Preventive maintenance <a href="{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}">{{ doc.name }}</a> on {{ doc.asset_name }} is due on {{ frappe.format(doc.due_date, 'Date') }}. Overdue maintenance blocks dispatch.</p>

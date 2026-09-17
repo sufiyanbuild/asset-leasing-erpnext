@@ -1,0 +1,81 @@
+{
+ "actions": [],
+ "creation": "2026-09-17 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "asset",
+  "damage_description",
+  "severity",
+  "cb_cost",
+  "estimated_cost",
+  "chargeable_to_customer",
+  "photo"
+ ],
+ "fields": [
+  {
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "options": "Asset",
+   "label": "Equipment",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "damage_description",
+   "fieldtype": "Small Text",
+   "label": "Damage",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 3
+  },
+  {
+   "fieldname": "severity",
+   "fieldtype": "Select",
+   "options": "\nMinor\nModerate\nMajor\nTotal Loss",
+   "label": "Severity",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "cb_cost",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "estimated_cost",
+   "fieldtype": "Currency",
+   "label": "Estimated Cost",
+   "in_list_view": 1,
+   "columns": 2,
+   "description": "Required when chargeable to the customer."
+  },
+  {
+   "fieldname": "chargeable_to_customer",
+   "fieldtype": "Check",
+   "label": "Chargeable",
+   "default": "1",
+   "in_list_view": 1,
+   "columns": 1,
+   "description": "Untick for fair wear and tear."
+  },
+  {
+   "fieldname": "photo",
+   "fieldtype": "Attach Image",
+   "label": "Photo"
+  }
+ ],
+ "links": [],
+ "modified": "2026-09-17 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Asset Leasing",
+ "name": "Rental Damage Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "istable": 1,
+ "editable_grid": 1
+}

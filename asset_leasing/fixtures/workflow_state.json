@@ -2,6 +2,33 @@
  {
   "docstatus": 0,
   "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2026-09-17 03:14:48.702932",
+  "name": "Pending Inspection",
+  "style": "Warning",
+  "workflow_state_name": "Pending Inspection"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2026-09-17 03:14:48.721202",
+  "name": "Damage Assessed",
+  "style": "Danger",
+  "workflow_state_name": "Damage Assessed"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2026-09-17 03:14:48.721830",
+  "name": "Inspected",
+  "style": "Success",
+  "workflow_state_name": "Inspected"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
   "icon": "question-sign",
   "modified": "2026-09-15 04:59:58.876411",
   "name": "Pending",

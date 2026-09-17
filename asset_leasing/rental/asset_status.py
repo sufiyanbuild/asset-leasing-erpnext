@@ -9,7 +9,9 @@ field owned entirely by this module.
 The field is read_only on the form. set_status() is the only writer, so the
 transition rules below cannot be bypassed from the interface.
 
-P1 builds the machine; P3 and P4 are the first phases with callers.
+Callers: agreement approval and cancellation (Reserved / Available), dispatch
+(On Hire), return (Under Inspection, then Available or Under Repair) and the
+Asset Repair handlers (Under Repair / Available).
 """
 
 import frappe
@@ -60,11 +62,16 @@ def assert_transition(from_status, to_status, asset=None):
 	)
 
 
-def set_status(asset, new_status, reason=None):
+def set_status(asset, new_status, reason=None, reversal_of=None):
 	"""The only supported writer of al_rental_status.
 
 	Validates the transition, writes the value, and records why on the Asset's
 	timeline so the history of a machine is readable without trawling versions.
+
+	reversal_of names a document being cancelled. Cancelling a dispatch or a
+	return puts the machine back exactly where that document found it, which is
+	an undo rather than a business transition, so the transition table is not
+	consulted. The timeline still records it.
 	"""
 	if new_status not in ALL_STATUSES:
 		frappe.throw(_("Unknown rental status {0}").format(new_status))
@@ -73,14 +80,21 @@ def set_status(asset, new_status, reason=None):
 	if current == new_status:
 		return current
 
-	assert_transition(current, new_status, asset=asset)
+	if not reversal_of:
+		assert_transition(current, new_status, asset=asset)
 	frappe.db.set_value("Asset", asset, "al_rental_status", new_status, update_modified=False)
 
 	note = _("Rental status: {0} &rarr; {1}").format(current, new_status)
+	if reversal_of:
+		note = f"{note}<br>{_('Restored because {0} was cancelled.').format(reversal_of)}"
 	if reason:
 		note = f"{note}<br>{reason}"
 	frappe.get_doc("Asset", asset).add_comment("Info", note)
 	return new_status
+
+
+def get_status(asset):
+	return frappe.db.get_value("Asset", asset, "al_rental_status") or AVAILABLE
 
 
 def assert_not_out_of_yard(asset, action):

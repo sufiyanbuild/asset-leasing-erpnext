@@ -4,16 +4,14 @@ Every field is prefixed al_ so ownership is unambiguous on a site that may host
 more than one app. All insert_after anchors were verified against the live
 schema on leasing.local before this was written.
 
-Split into two dicts by phase, because a Link field cannot be created before
-its target DocType exists - Frappe validates options at install time.
+Split into dicts by the DocType they link to, because a Link field cannot be
+created before its target DocType exists - Frappe validates options at install
+time.
 
-    P1_CUSTOM_FIELDS - targets that already existed (Item, Location, Customer...)
-    P2_CUSTOM_FIELDS - targets Rental Agreement, created in P2
-
-Still deferred:
-
-    Subscription.al_rental_agreement  -> Rental Agreement   (P6, with Subscription work)
-    Asset Repair.al_rental_return     -> Rental Return      (P4)
+    P1_CUSTOM_FIELDS     - targets that already existed (Item, Location, Customer...)
+    P2_CUSTOM_FIELDS     - link to Rental Agreement
+    RENTAL_DOC_FIELDS    - link to Rental Dispatch / Rental Return, plus the
+                           billing, deposit and compliance fields
 
 Also deliberately absent, because standard ERPNext already provides them:
 
@@ -67,8 +65,12 @@ P1_CUSTOM_FIELDS = {
 		 "description": "No default: an excavator is metered in hours, a tipper in kilometres."},
 		{"fieldname": "al_last_meter_reading", "label": "Last Meter Reading", "fieldtype": "Float",
 		 "precision": "1", "read_only": 1, "insert_after": "al_meter_uom"},
+		{"fieldname": "al_compliance_status", "label": "Compliance Status", "fieldtype": "Select",
+		 "options": "\nValid\nExpiring Soon\nExpired", "read_only": 1,
+		 "insert_after": "al_last_meter_reading", "in_standard_filter": 1,
+		 "description": "From the insurance, fitness and permit expiry dates. Expired documents block dispatch."},
 		{"fieldname": "al_compliance_cb", "fieldtype": "Column Break",
-		 "insert_after": "al_last_meter_reading"},
+		 "insert_after": "al_compliance_status"},
 		{"fieldname": "al_fitness_expiry", "label": "Fitness Certificate Expiry", "fieldtype": "Date",
 		 "insert_after": "al_compliance_cb"},
 		{"fieldname": "al_permit_expiry", "label": "Permit Expiry", "fieldtype": "Date",
@@ -185,25 +187,66 @@ P2_CUSTOM_FIELDS = {
 	],
 }
 
+# ---------------------------------------------------------- P3 onwards
+# Link to Rental Dispatch and Rental Return, so they wait for those DocTypes.
+IS_DEPOSIT = "eval:doc.al_deposit_type"
+RENTAL_DOC_FIELDS = {
+	"Sales Invoice": [
+		{"fieldname": "al_rental_dispatch", "label": "Rental Dispatch", "fieldtype": "Link",
+		 "options": "Rental Dispatch", "read_only": 1, "insert_after": "al_rental_agreement",
+		 "depends_on": "eval:doc.al_rental_dispatch",
+		 "description": "The dispatch whose mobilisation charge this invoice bills."},
+		{"fieldname": "al_rental_return", "label": "Rental Return", "fieldtype": "Link",
+		 "options": "Rental Return", "read_only": 1, "insert_after": "al_rental_dispatch",
+		 "depends_on": "eval:doc.al_rental_return",
+		 "description": "The return this invoice bills (rent, damage or demobilisation)."},
+	],
+	"Asset Repair": [
+		{"fieldname": "al_rental_return", "label": "Rental Return", "fieldtype": "Link",
+		 "options": "Rental Return", "read_only": 1, "insert_after": "al_customer",
+		 "depends_on": "eval:doc.al_rental_return"},
+	],
+	"Subscription": [
+		{"fieldname": "al_rental_agreement", "label": "Rental Agreement", "fieldtype": "Link",
+		 "options": "Rental Agreement", "read_only": 1, "insert_after": "party",
+		 "in_standard_filter": 1,
+		 "description": "The long-term hire contract this subscription bills."},
+	],
+	"Payment Entry": [
+		{"fieldname": "al_deposit_type", "label": "Security Deposit", "fieldtype": "Select",
+		 "options": "\nDeposit Received\nDeposit Refund", "insert_after": "party_name",
+		 "in_standard_filter": 1,
+		 "description": "Tag a payment as an equipment-hire security deposit or its refund."},
+		{"fieldname": "al_rental_agreement", "label": "Rental Agreement", "fieldtype": "Link",
+		 "options": "Rental Agreement", "insert_after": "al_deposit_type",
+		 "depends_on": IS_DEPOSIT, "mandatory_depends_on": IS_DEPOSIT, "in_standard_filter": 1},
+	],
+}
+
 # Everything the app owns, in dependency order.
-CUSTOM_FIELDS = {**P1_CUSTOM_FIELDS}
-for _dt, _fields in P2_CUSTOM_FIELDS.items():
-	CUSTOM_FIELDS.setdefault(_dt, [])
-	CUSTOM_FIELDS[_dt] = CUSTOM_FIELDS[_dt] + _fields
+CUSTOM_FIELDS = {}
+for _group in (P1_CUSTOM_FIELDS, P2_CUSTOM_FIELDS, RENTAL_DOC_FIELDS):
+	for _dt, _fields in _group.items():
+		CUSTOM_FIELDS[_dt] = CUSTOM_FIELDS.get(_dt, []) + _fields
 
 
 def create_al_custom_fields():
 	"""Idempotent. Safe to run on every migrate.
 
-	P2 fields are skipped while Rental Agreement does not exist, so this stays
-	safe to call during a partial install.
+	Groups whose link targets do not exist yet are skipped, so this stays safe
+	to call during a partial install.
 	"""
 	payload = {dt: list(fields) for dt, fields in P1_CUSTOM_FIELDS.items()}
 
-	if frappe.db.exists("DocType", "Rental Agreement"):
-		for dt, fields in P2_CUSTOM_FIELDS.items():
-			payload.setdefault(dt, [])
-			payload[dt] = payload[dt] + fields
+	groups = (
+		(("Rental Agreement",), P2_CUSTOM_FIELDS),
+		(("Rental Agreement", "Rental Dispatch", "Rental Return"), RENTAL_DOC_FIELDS),
+	)
+	for targets, group in groups:
+		if not all(frappe.db.exists("DocType", t) for t in targets):
+			continue
+		for dt, fields in group.items():
+			payload[dt] = payload.get(dt, []) + fields
 
 	create_custom_fields(payload, update=True)
 	frappe.db.commit()

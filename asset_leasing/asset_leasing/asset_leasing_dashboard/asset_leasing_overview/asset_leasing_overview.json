@@ -1,0 +1,62 @@
+{
+ "docstatus": 0,
+ "idx": 0,
+ "creation": "2026-09-17 13:30:00.000000",
+ "modified": "2026-09-17 13:30:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "module": "Asset Leasing",
+ "doctype": "Dashboard",
+ "name": "Asset Leasing Overview",
+ "dashboard_name": "Asset Leasing Overview",
+ "is_default": 0,
+ "is_standard": 1,
+ "cards": [
+  {
+   "card": "Equipment On Hire"
+  },
+  {
+   "card": "Available Equipment"
+  },
+  {
+   "card": "Equipment Under Repair"
+  },
+  {
+   "card": "Overdue Returns"
+  },
+  {
+   "card": "Fleet Utilisation"
+  },
+  {
+   "card": "Rental Revenue MTD"
+  },
+  {
+   "card": "Rental Receivable"
+  },
+  {
+   "card": "Deposits Held"
+  }
+ ],
+ "charts": [
+  {
+   "chart": "Fleet Status Mix",
+   "width": "Half"
+  },
+  {
+   "chart": "Utilisation by Category",
+   "width": "Half"
+  },
+  {
+   "chart": "Monthly Rental Revenue",
+   "width": "Full"
+  },
+  {
+   "chart": "Revenue by Asset Category",
+   "width": "Half"
+  },
+  {
+   "chart": "Damage Recovery Trend",
+   "width": "Half"
+  }
+ ]
+}

@@ -1,0 +1,36 @@
+{
+ "attach_print": 0,
+ "channel": "System Notification",
+ "condition_type": "Python",
+ "creation": "2026-09-17 14:00:00.000000",
+ "days_in_advance": 7,
+ "docstatus": 0,
+ "doctype": "Notification",
+ "enabled": 1,
+ "idx": 0,
+ "is_standard": 1,
+ "message": "<p>Preventive maintenance <a href=\"{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}\">{{ doc.name }}</a> on {{ doc.asset_name }} is due on {{ frappe.format(doc.due_date, 'Date') }}. Overdue maintenance blocks dispatch.</p>\n",
+ "message_type": "HTML",
+ "method": "",
+ "minutes_offset": 0,
+ "modified": "2026-09-17 15:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Asset Leasing",
+ "name": "Maintenance Due",
+ "owner": "Administrator",
+ "recipients": [
+  {
+   "receiver_by_role": "Leasing Maintenance Technician"
+  }
+ ],
+ "send_system_notification": 0,
+ "send_to_all_assignees": 0,
+ "sender_email": "",
+ "value_changed": null,
+ "date_changed": "due_date",
+ "document_type": "Asset Maintenance Log",
+ "event": "Days Before",
+ "condition": "doc.docstatus == 0 and doc.maintenance_status == \"Planned\"",
+ "subject": "Maintenance {{ doc.task_name or '' }} on {{ doc.asset_name }} is due {{ frappe.format(doc.due_date, 'Date') }}",
+ "notification_message": "<p>Preventive maintenance <a href=\"{{ frappe.utils.get_url_to_form(doc.doctype, doc.name) }}\">{{ doc.name }}</a> on {{ doc.asset_name }} is due on {{ frappe.format(doc.due_date, 'Date') }}. Overdue maintenance blocks dispatch.</p>"
+}
